@@ -1,0 +1,40 @@
+/* SideBar.css */
+
+/* This ensures the body has no margin and the sidebar can take full height */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif; /* or your preferred font */
+  }
+  
+  .sidebar-container {
+    position: fixed; /* Fixed position to the left of the screen */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    width: 250px; /* Width of the sidebar */
+    height: 100vh; /* Full height of the viewport */
+    background-color: #f2f2f2; /* Light background color */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow to the right */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    z-index: 1000; /* Ensure sidebar is above other content */
+  }
+  
+  .sidebar-button {
+    padding: 10px 15px;
+    margin-bottom: 10px; /* Space between buttons */
+    width: calc(100% - 30px); /* Full width within the padding */
+    background-color: #262377; /* Green background */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left; /* Align text to the left */
+  }
+  
+  .sidebar-button:hover {
+    background-color: #533c08;
+  }
+  
