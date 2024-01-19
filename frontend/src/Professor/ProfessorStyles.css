@@ -1,0 +1,116 @@
+
+.add-button {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    background-color: #070f6a; /* Blue */
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: #090466; /* Darker Blue */
+}
+
+.form-container {
+    padding: 32px;
+    background-color: #f7f7f7; /* Light Grey */
+}
+
+.student-form {
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    border-radius: 4px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4a5568; /* Dark Grey */
+    font-weight: bold;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Adds padding without increasing the width */
+}
+
+.submit-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.submit-button {
+    background-color: #4299e1; /* Blue */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.submit-button:hover {
+    background-color: #2b6cb0; /* Darker Blue */
+}
+.professor-cards-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.professor-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    min-width: 250px; /* Minimum width */
+    max-width: 500px; /* Maximum width */
+}
+
+.professor-info {
+    flex: 1;
+    min-width: 0; /* Prevent it from overflowing */
+}
+
+.professor-info h3, .professor-info p {
+    margin: 0;
+    font-size: 1em;
+    word-break: break-word; /* Change to 'nowrap' if using text-overflow */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Remove if you want text to wrap */
+}
+
+.remove-professor-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+.remove-professor-button:hover {
+    background-color: #d32f2f;
+}
