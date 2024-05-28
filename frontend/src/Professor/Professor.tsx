@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import SideBar from '../SideBar/SideBar';
 import './ProfessorStyles.css'; // assuming you have similar styling for Professor
 import axiosapi from "../api"; // Ensure you have the axios instance configured for your API
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 interface Professor {
     UserID: number;
@@ -14,7 +16,7 @@ function Professor() {
     const [showForm, setShowForm] = useState(false);
     const [professors, setProfessors] = useState<Professor[]>([]);
     const [newProfessor, setNewProfessor] = useState<Professor>({ UserID: 0, UserName: '', UserType: 'Professor', PhoneNumber: '' });
-
+    const [searchQuery, setSearchQuery] = useState<string>('');
     // Fetch professors from the server
     const fetchProfessors = async () => {
         try {
@@ -62,11 +64,32 @@ function Professor() {
         }
     };
 
+    const filteredprofessors = professors.filter(professor =>
+        professor.UserName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        professor.PhoneNumber.includes(searchQuery)
+    );
     return (
         <div className="parent-container">
             <SideBar />
+
+
+
+            <Form className="d-flex search-form fixed-top p-2 mx-auto rounded-pill" style={{ width: 'fit-content' }}>
+                <Form.Control
+                    type="search"
+                    placeholder="Search"
+                    className="me-2 border-dark"
+                    aria-label="Search"
+                    style={{ width: '200px' }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Button variant="outline-success" className="text-dark">Search</Button>
+            </Form>
+
+
             <div className="professor-cards-container">
-                {professors.map((professor, index) => (
+                {filteredprofessors.map((professor, index) => (
                     <div key={index} className="professor-card">
                         <div className="professor-info">
                             <h3>{professor.UserName}</h3>

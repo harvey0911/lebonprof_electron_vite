@@ -4,7 +4,7 @@ import cors from "cors";
 
 const app = express();
 const dbconnection = new sqlite3.Database('./lebonprof.db');
-
+ 
 // Middleware to parse JSON
 app.use(cors({origin:'http://localhost:5173',credentials: true}))
 app.use(express.json());
@@ -80,6 +80,49 @@ dbconnection.run(
             }
         }
     );
+
+    dbconnection.run(
+        `CREATE TABLE IF NOT EXISTS Sessions (
+            SessionID INTEGER PRIMARY KEY AUTOINCREMENT,
+            CourseID INTEGER,
+            Title TEXT,
+            WhiteboardContent TEXT,
+            CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('Error creating Sessions table', err);
+            } else {
+                console.log('Sessions table created or already exists');
+            }
+        }
+    );
+
+    dbconnection.run(
+        `CREATE TABLE IF NOT EXISTS Attendance (
+            AttendanceID INTEGER PRIMARY KEY AUTOINCREMENT,
+            CourseID INTEGER NOT NULL,
+            StudentID INTEGER NOT NULL,
+            Date DATE NOT NULL,
+            Status TEXT DEFAULT 'Absent' CHECK(Status IN ('Present', 'Absent', 'Late')) NOT NULL,
+            FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+            FOREIGN KEY (StudentID) REFERENCES Users(UserID)
+        );
+        
+        );
+        
+        )`,
+        (err) => {
+            if (err) {
+                console.error('Error creating Sessions table', err);
+            } else {
+                console.log('Attendance table created or already exists');
+            }
+        }
+    );
+
+    
 }
 
 // Endpoint to add a task
@@ -152,6 +195,34 @@ app.delete('/deletetask/:taskId', (req, res) =>{ // Include :taskId in the route
     });
 });
 
+
+// Endpoint to fetch students not enrolled in a specific course
+app.get('/fetch_Students_not_enrolled/:courseId', (req, res) => {
+    const courseId = req.params.courseId;
+
+    try {
+        // Use SQL query to fetch students not enrolled in the specified course
+        const query = `
+            SELECT Users.*
+            FROM Users
+            LEFT JOIN Enrollments ON Users.UserID = Enrollments.StudentID AND Enrollments.CourseID = ?
+            WHERE Enrollments.CourseID IS NULL AND Users.UserType = 'Student'
+        `;
+
+        // Execute the query
+        dbconnection.all(query, [courseId], (err, students) => {
+            if (err) {
+                console.error('Error fetching students not enrolled:', err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                res.json(students);
+            }
+        });
+    } catch (error) {
+        console.error('Error in fetch_Students_not_enrolled endpoint:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 
@@ -249,6 +320,8 @@ app.get('/fetchProfessorByCourse/:CourseID', (req, res) => {
 
 app.get('/fetchStudentsByCourse/:CourseID', (req, res) => {
     const { CourseID } = req.params;
+
+    
 
     const query = `
         SELECT Users.UserID, Users.UserName 
@@ -372,9 +445,286 @@ app.post('/enrollstudent', async (req, res) => {
 
 
 
+app.delete('/deleteSession/:sessionTitle', async (req, res) => {
+    const { sessionTitle } = req.params;
+  
+    try {
+      // Perform deletion operation based on session title
+      const query = `DELETE FROM Sessions WHERE Title = ?`;
+      await dbQuery(query, [sessionTitle]);
+  
+      res.status(200).json({ message: 'Session deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting session', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+  
+
+  
+
+
+
+
+// Updated route to remove a student from a course
+app.put('/remove_from_course', async (req, res) => {
+    const { UserID, CourseID } = req.body;
+
+    try {
+        // Validate input
+        if (!UserID || !CourseID) {
+            return res.status(400).json({ error: 'Both UserID and CourseID are required in the request body' });
+        }
+
+        // Execute SQL query to remove the student from the course
+        const query = `DELETE FROM Enrollments WHERE StudentID = ? AND CourseID = ?`;
+
+        dbconnection.run(query, [UserID, CourseID], function (err) {
+            if (err) {
+                console.error('Error removing student from course', err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                console.log(`Student with UserID ${UserID} removed from the course with CourseID ${CourseID}`);
+                res.status(200).json({ message: 'Student removed from the course' });
+            }
+        });
+    } catch (error) {
+        console.error('Error in remove_from_course endpoint:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
 
 // Call the function to create tables
 createTables();
 
 // Start the server
 app.listen(5000, () => console.log("Server is running on port 5000"));
+
+
+// ... (Existing code)
+
+// Endpoint to fetch sessions for a specific course
+app.get('/fetchSessions/:courseId', async (req, res) => {
+    const { courseId } = req.params;
+  
+    try {
+      // Fetch sessions based on the courseId
+      const query = `SELECT * FROM Sessions WHERE CourseID = ?`;
+      const sessions = await dbQuery(query, [courseId]);
+  
+      res.status(200).json(sessions);
+    } catch (error) {
+      console.error('Error fetching sessions', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+  
+
+// Endpoint to add a new session
+app.post('/addSession', async (req, res) => {
+    const { courseId, title, whiteboardContent } = req.body;
+
+    try {
+        // Insert a new session into the Sessions table
+        const query = `INSERT INTO Sessions (CourseID, Title, WhiteboardContent) VALUES (?, ?, ?)`;
+        const result = await dbRun(query, [courseId, title, whiteboardContent]);
+
+        // Return the newly created session
+        res.status(201).json({ sessionId: result.lastID });
+    } catch (error) {
+        console.error('Error adding session', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// ... (Other existing code)
+
+// Helper function for database query with promise
+const dbQuery = (query, params) => {
+    return new Promise((resolve, reject) => {
+        dbconnection.all(query, params, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+};
+
+// Helper function for database run with promise
+const dbRun = (query, params) => {
+    return new Promise((resolve, reject) => {
+        dbconnection.run(query, params, function (err) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(this);
+            }
+        });
+    });
+};
+
+
+// Add this route to your server.js
+app.put('/updateSessionTitle/:courseId', (req, res) => {
+    const { courseId } = req.params;
+    const { oldTitle, newTitle } = req.body;
+
+    if (!oldTitle || !newTitle) {
+        return res.status(400).send('Missing old or new title');
+    }
+
+    const query = `UPDATE Sessions SET Title = ? WHERE CourseID = ? AND Title = ?`;
+
+    dbconnection.run(query, [newTitle, courseId, oldTitle], function (err) {
+        if (err) {
+            console.error('Error updating session title', err);
+            res.status(500).send('An error occurred while updating the session title');
+        } else if (this.changes === 0) {
+            // If no rows were affected, it means oldTitle does not match with the current title
+            res.status(404).send('Session not found or old title does not match');
+        } else {
+            console.log(`Session with CourseID ${courseId} has been updated`);
+            res.status(200).send({ updatedCourseId: courseId });
+        }
+    });
+});
+
+
+ 
+
+// Backend endpoint to save attendance
+// Endpoint to save attendance
+app.post('/saveAttendance', async (req, res) => {
+    try {
+        const attendanceData = req.body;
+
+        // Prepare the SQL statement
+        const insertAttendanceQuery = `INSERT INTO Attendance (studentId, courseId, date, status) VALUES (?, ?, ?, ?)`;
+        
+        // Run the insert operation for each attendance record asynchronously
+        for (const record of attendanceData) {
+            await runAsyncQuery(insertAttendanceQuery, [
+                record.studentId,
+                record.courseId,
+                record.date,
+                record.status
+            ]);
+        }
+
+        res.status(200).json({ message: 'Attendance saved successfully' });
+    } catch (error) {
+        console.error('Error saving attendance:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Helper function to run SQL queries asynchronously
+function runAsyncQuery(query, params) {
+    return new Promise((resolve, reject) => {
+        dbconnection.run(query, params, function (err) {
+            if (err) {
+                console.error('Error running query:', err);
+                reject(err);
+            } else {
+                resolve({ id: this.lastID });
+            }
+        });
+    });
+}
+app.get('/fetchAttendanceData/:courseId/:date', async (req, res) => {
+    try {
+        const courseId = req.params.courseId;
+        const date = req.params.date;
+        
+        // Prepare the SQL statement to fetch students and their attendance status for the given course and date
+        const fetchAttendanceQuery = `
+            SELECT 
+                s.UserID,
+                s.UserName,
+                a.status
+            FROM 
+                Students s
+            INNER JOIN 
+                Enrollments e ON s.UserID = e.studentId
+            LEFT JOIN 
+                Attendance a ON s.UserID = a.studentId AND a.date = ?
+            WHERE 
+                e.courseId = ?
+        `;
+        
+        // Execute the SQL query to fetch students and their attendance status
+        const attendanceData = await runAsyncQuery(fetchAttendanceQuery, [date, courseId]);
+        
+        // Send the fetched attendance data as a response
+        res.status(200).json(attendanceData);
+    } catch (error) {
+        console.error('Error fetching attendance data:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+app.get('/fetchStudentsStatus/:courseId', async (req, res) => {
+    const { courseId } = req.params;
+    const { date } = req.query;
+
+    console.log('Received courseId:', courseId);
+    console.log('Received date:', date);
+
+    try {
+        // Query to check if there are any attendance records for the given date
+        const attendanceQuery = `
+            SELECT *
+            FROM Attendance
+            WHERE CourseID = ? AND Date = ?`;
+
+        const attendanceRecords = await runAsyncQuery1(attendanceQuery, [courseId, date]);
+
+        let studentsWithAttendanceStatus;
+
+        if (attendanceRecords.length === 0) {
+            // If no attendance records found, fetch all enrolled students with absent status
+            const allStudentsQuery = `
+                SELECT Users.UserID, Users.UserName, 'Absent' as Status
+                FROM Users
+                JOIN Enrollments ON Users.UserID = Enrollments.StudentID
+                WHERE Enrollments.CourseID = ?`;
+
+            studentsWithAttendanceStatus = await runAsyncQuery1(allStudentsQuery, [courseId]);
+            console.log('Students with attendance status in case of empty attendance records:', studentsWithAttendanceStatus);
+        } else {
+            // If attendance records found, fetch students with their attendance status
+            const studentsQuery = `
+                SELECT Users.UserID, Users.UserName, Attendance.Status
+                FROM Users
+                JOIN Attendance ON Users.UserID = Attendance.StudentID
+                WHERE Attendance.CourseID = ? AND Attendance.Date = ?`;
+
+            studentsWithAttendanceStatus = await runAsyncQuery1(studentsQuery, [courseId, date]);
+            console.log('Students with attendance status when attendance records are present:', studentsWithAttendanceStatus);
+        }
+
+        res.status(200).json(studentsWithAttendanceStatus);
+    } catch (error) {
+        console.error('Error fetching students with attendance status', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+function runAsyncQuery1(query, params) {
+    return new Promise((resolve, reject) => {
+        dbconnection.all(query, params, (err, rows) => {
+            if (err) {
+                console.error('Error running query:', err);
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}

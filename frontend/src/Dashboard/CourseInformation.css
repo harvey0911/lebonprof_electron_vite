@@ -1,20 +1,25 @@
 /* CourseInformation.css */
 
-.course-information {
-    margin-left: 250px;
-    padding: 20px;
+ /* .course-information {
+
+    top: 65px;
+    left: 40px;
     font-family: Arial, sans-serif;
-}
+}  */
 
 .course-title {
+
+    /* left: 40px;
     color: #333;
     margin-bottom: 0.5em;
-    font-size: 2em;
-}
+    font-size: 2em; */
+
+
+float: left;}
 
 .professor-name {
     color: #262377;
-    margin-bottom: 0.25em;
+    left: 0px;
     font-size: 1.5em;
 }
 
@@ -29,6 +34,7 @@
 }
 
 .students-list {
+    
     list-style: none;
     padding: 0;
 }
@@ -43,4 +49,20 @@
 
 .student-item:hover {
     background-color: #e6e6e6;
+}
+
+
+.add_student_button{
+
+    position: absolute;
+    top: 65px;
+    right: 40px;
+    background-color: #070f6a; /* Blue */
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }

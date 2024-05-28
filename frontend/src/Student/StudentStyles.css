@@ -98,6 +98,9 @@ flex-direction: row;
     max-width: 500px; /* Maximum width */
 }
 
+
+
+
 .student-info {
     flex: 1;
     min-width: 0; /* Prevent it from overflowing */

@@ -8,6 +8,15 @@ import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import image from './pic.jpg';
+import { CardText, NavDropdown } from 'react-bootstrap';
+import { faTrash, faPen } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import defaultpic from './defaultpic.png'; 
+
 interface Course {
     CourseName: string;
     ProfessorID: number;
@@ -21,9 +30,19 @@ function DashBoard() {
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [newCourse, setNewCourse] = useState<Course>({ CourseName: '', ProfessorID: 0, CourseID: 0 });
     const [courses, setCourses] = useState<Course[]>([]);
+    const [isHovered, setIsHovered] = useState(false);
     const navigate = useNavigate();
+    const [hoveredCards, setHoveredCards] = useState<boolean[]>([]); // State to track hover for each card
 
 
+    // Function to handle mouse enter and leave for each card
+    const handleCardHover = (index: number, isHovered: boolean) => {
+        setHoveredCards(prevState => {
+            const newState = [...prevState];
+            newState[index] = isHovered;
+            return newState;
+        });
+    };
 
     function navigateToCourseInformation(courseId: number) {
         navigate(`/course/${courseId}`);
@@ -43,11 +62,11 @@ function DashBoard() {
         const fetchData = async () => {
             try {
                 const profsResponse = await axiosapi.get('/fetchprofessors');
-                const studsResponse = await axiosapi.get('/fetchstudents');
+                const studentsResponse = await axiosapi.get('/fetchstudents');
                 const coursesResponse = await axiosapi.get('/fetchCourses');
 
                 setProfessors(profsResponse.data);
-                setStudents(studsResponse.data);
+                setStudents(studentsResponse.data);
                 setCourses(coursesResponse.data);
             } catch (error) {
                 console.error('Error fetching data', error);
@@ -141,18 +160,61 @@ function DashBoard() {
             <div className="dashboard-container">
 
                 <Container style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '7px' }}>
-                    {courses.map((course) => (
-                        <Card style={{ width: '18rem', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                            <Card.Img variant="top" src='{image}' />
-                            <Card.Body style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                <Card.Title>{course.CourseName}</Card.Title>
-                                <Button variant="primary" style={{ width: '200px', marginBottom: '8px' }} onClick={() => navigateToCourseInformation(course.CourseID)}>Go Course Information</Button>
-                                <Button variant="primary" style={{ width: '200px', marginBottom: '8px' }} onClick={() => navigateToAttendance(course.CourseID)}>Attendance</Button>
-                                <Button variant="primary" style={{ width: '200px', marginBottom: '8px' }} onClick={() => navigateToPayment(course.CourseID)}>Payment</Button>
-                            </Card.Body>
-                        </Card>
+
+                    {courses.map((course, index) => (
+
+                        
+                        <Card
+                        key={course.CourseID} // Ensure each card has a unique key
+                        style={{ width: '15rem', height: '18rem', display: 'flex', flexDirection: 'column', gap: '5px', transition: 'transform 0.2s', transform: hoveredCards[index] ? 'scale(1.05)' : 'scale(1)', position: 'relative' }}
+                        onMouseEnter={() => handleCardHover(index, true)} // Pass index to identify the card
+                        onMouseLeave={() => handleCardHover(index, false)} // Pass index to identify the card
+                    >
+                        
+                       
+          
+                    
+                        <Card.Body style={{ gap: '5px' }}>
+                            <Card.Title style={{ alignSelf: "flex-start" }}>{course.CourseName} </Card.Title>
+                        </Card.Body>
+                    
+                        <div style={{ position: 'absolute', bottom: '30px', left: '30px' }}>
+                            <Button variant="primary" style={{ padding: '10px 10px', fontSize: '12px' }} onClick={() => navigateToCourseInformation(course.CourseID)}>Course Information</Button>
+                        </div>
+                    
+                        <div style={{ paddingLeft: '5vw' }}>
+                            <Dropdown style={{ alignSelf: 'flex-end', marginLeft: '5vw' }}>
+                                <Dropdown.Toggle variant="Secondary" id="dropdown-basic">
+                                    ...
+                                </Dropdown.Toggle>
+                    
+                                <Dropdown.Menu>
+                                    <NavDropdown.Item >
+                                        Delete <FontAwesomeIcon icon={faTrash} />
+                                    </NavDropdown.Item>
+                                    <NavDropdown.Item >
+                                        Rename <FontAwesomeIcon icon={faPen} />
+                                    </NavDropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </div>
+                    </Card>
+                    
+
+
+
+
+
+
+
 
                     ))}
+
+
+
+
+
+
                 </Container>
 
             </div>
@@ -161,6 +223,7 @@ function DashBoard() {
             <button onClick={toggleFormDisplay} className="add-button">
                 {showForm ? 'Hide Form' : '+ Add Course'}
             </button>
+
             {showForm && (
                 <div className="form-container">
                     <form onSubmit={handleSubmit} className="course-form">
