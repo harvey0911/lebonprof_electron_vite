@@ -9,7 +9,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
+import NavDropdown from 'react-bootstrap/NavDropdown'; 
 import Table from 'react-bootstrap/Table';
 import { useState, useEffect } from 'react';
 import axiosapi from '../api';
@@ -95,6 +95,11 @@ function Attendance() {
         navigate(`/files/${courseId}`);
     }
 
+    
+    function navigateToDashBoard(){
+        navigate(`/Dashboard`);
+    }
+
 
     function TurnLate(studentId: number) {
         updateStatus(studentId, 'Late');
@@ -157,7 +162,7 @@ function Attendance() {
 
             <Navbar expand="lg" className="bg-dark fixed-top">
                 <Container fluid>
-                    <Navbar.Brand href="#" className="text-light">Dashboard</Navbar.Brand>
+                    <Navbar.Brand  onClick={navigateToDashBoard}  className="text-light">Dashboard</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
                     <Navbar.Collapse id="navbarScroll">
                         <Nav

@@ -2,49 +2,31 @@ import { useState, useEffect } from 'react';
 import SideBar from '../SideBar/SideBar';
 import './StudentStyles.css';
 import axiosapi from "../api"; // Ensure you have the axios instance configured for your API
-
 import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import Table from 'react-bootstrap/Table';
+import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Dropdown from 'react-bootstrap/Dropdown';
-import NavItem from 'react-bootstrap/NavItem';
-import NavLink from 'react-bootstrap/NavLink';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 
-import {
-    faUser,
-} from '@fortawesome/free-solid-svg-icons';
 interface Student {
     UserID: number;
     UserName: string;
     UserType: string; // Since UserType is either 'Student' or 'Professor'
     PhoneNumber: string;
     Status: string;
-
 }
 
-
 function Student() {
-
-
     const [showForm, setShowForm] = useState(false);
-
     const [students, setStudents] = useState<Student[]>([]);
-
     const [newStudent, setNewStudent] = useState<Student>({ UserID: 0, UserName: '', UserType: 'Student', PhoneNumber: '', Status: '' });
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [studentToDelete, setStudentToDelete] = useState<number | null>(null); // State to hold the ID of the student to be deleted
+
     // Fetch students from the server
     const fetchStudents = async () => {
         try {
             const { data } = await axiosapi.get('/fetchstudents');
-
-
             setStudents(data);
         } catch (error) {
             console.error('Error fetching students', error);
@@ -52,18 +34,8 @@ function Student() {
     };
 
     useEffect(() => {
-        let isMounted = true;
-
-
         fetchStudents();
-
-        return () => {
-            isMounted = false;
-        };
     }, []);
-
-
-
 
     const toggleFormDisplay = () => {
         setShowForm(!showForm);
@@ -72,43 +44,46 @@ function Student() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            await axiosapi.post('/adduser', { ...newStudent, UserType: 'Student' }); // Ensure UserType is 'Student'
-            fetchStudents(); // You may need to modify this to fetch only users where UserType is 'Student'
+            await axiosapi.post('/adduser', { ...newStudent, UserType: 'Student' });
+            fetchStudents();
             setShowForm(false);
-            setNewStudent({ UserID: 0, UserName: '', UserType: 'Student', PhoneNumber: '', Status: '' }); // Reset the form
+            setNewStudent({ UserID: 0, UserName: '', UserType: 'Student', PhoneNumber: '', Status: '' });
         } catch (error) {
             console.error('Error adding student', error);
         }
     };
 
-
-
     const removeStudent = async (UserID: number) => {
         try {
             await axiosapi.delete(`/deleteuser/${UserID}`);
-
             setStudents(students.filter(user => user.UserID !== UserID));
         } catch (error) {
             console.error('Error deleting user', error);
         }
     };
 
+    const handleDelete = (UserID: number) => {
+        setStudentToDelete(UserID); // Set the student ID to be deleted
+        setShowDeleteConfirmation(true);
+    };
 
+    const confirmDelete = () => {
+        if (studentToDelete !== null) {
+            removeStudent(studentToDelete);
+            setStudentToDelete(null); // Reset the state
+        }
+        setShowDeleteConfirmation(false);
+    };
 
-
-   
-    
     // Filter students based on search query
     const filteredStudents = students.filter(student =>
         student.UserName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         student.PhoneNumber.includes(searchQuery)
-    );
-   
+    );  
 
     return (
         <div className="parent-container">
             <SideBar />
-
 
             <Form className="d-flex search-form fixed-top p-2 mx-auto rounded-pill" style={{ width: 'fit-content' }}>
                 <Form.Control
@@ -123,10 +98,6 @@ function Student() {
                 <Button variant="outline-success" className="text-dark">Search</Button>
             </Form>
 
-
-
-
-
             <div className="student-cards-container">
                 {filteredStudents.map((student, index) => (
                     <div key={index} className="student-card">
@@ -135,12 +106,11 @@ function Student() {
                             <p>{student.PhoneNumber}</p>
                         </div>
                         <div>
-                            <button className="remove-student-button" onClick={() => removeStudent(student.UserID)}>Delete</button>
+                            <button className="remove-student-button" onClick={() => handleDelete(student.UserID)}>Delete</button>
                         </div>
                     </div>
                 ))}
             </div>
-
 
             <div className="main-content">
                 <button onClick={toggleFormDisplay} className="add-button">
@@ -179,6 +149,21 @@ function Student() {
                     </div>
                 )}
             </div>
+
+            <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete this student?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDelete}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

@@ -4,6 +4,8 @@ import './ProfessorStyles.css'; // assuming you have similar styling for Profess
 import axiosapi from "../api"; // Ensure you have the axios instance configured for your API
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface Professor {
     UserID: number;
@@ -17,6 +19,9 @@ function Professor() {
     const [professors, setProfessors] = useState<Professor[]>([]);
     const [newProfessor, setNewProfessor] = useState<Professor>({ UserID: 0, UserName: '', UserType: 'Professor', PhoneNumber: '' });
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [professorToDelete, setProfessorToDelete] = useState<number | null>(null);
+
     // Fetch professors from the server
     const fetchProfessors = async () => {
         try {
@@ -27,16 +32,8 @@ function Professor() {
         }
     };
 
-
-
     useEffect(() => {
-        let isMounted = true;
-
         fetchProfessors();
-
-        return () => {
-            isMounted = false;
-        };
     }, []);
 
     const toggleFormDisplay = () => {
@@ -64,15 +61,27 @@ function Professor() {
         }
     };
 
-    const filteredprofessors = professors.filter(professor =>
+    const handleDelete = (UserID: number) => {
+        setProfessorToDelete(UserID);
+        setShowDeleteConfirmation(true);
+    };
+
+    const confirmDelete = () => {
+        if (professorToDelete !== null) {
+            removeProfessor(professorToDelete);
+            setProfessorToDelete(null); // Reset the state
+        }
+        setShowDeleteConfirmation(false);
+    };
+
+    const filteredProfessors = professors.filter(professor =>
         professor.UserName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         professor.PhoneNumber.includes(searchQuery)
     );
+
     return (
         <div className="parent-container">
             <SideBar />
-
-
 
             <Form className="d-flex search-form fixed-top p-2 mx-auto rounded-pill" style={{ width: 'fit-content' }}>
                 <Form.Control
@@ -87,20 +96,20 @@ function Professor() {
                 <Button variant="outline-success" className="text-dark">Search</Button>
             </Form>
 
-
             <div className="professor-cards-container">
-                {filteredprofessors.map((professor, index) => (
+                {filteredProfessors.map((professor, index) => (
                     <div key={index} className="professor-card">
                         <div className="professor-info">
                             <h3>{professor.UserName}</h3>
                             <p>{professor.PhoneNumber}</p>
                         </div>
                         <div>
-                            <button className="remove-professor-button" onClick={() => removeProfessor(professor.UserID)}>Delete</button>
+                            <button className="remove-professor-button" onClick={() => handleDelete(professor.UserID)}>Delete</button>
                         </div>
                     </div>
                 ))}
             </div>
+
             <div className="main-content">
                 <button onClick={toggleFormDisplay} className="add-button">
                     {showForm ? 'Close Form' : '+ Add Professor'}
@@ -138,6 +147,21 @@ function Professor() {
                     </div>
                 )}
             </div>
+
+            <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete this professor?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDelete}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }

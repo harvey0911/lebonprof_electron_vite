@@ -115,6 +115,9 @@ function Files() {
     navigate(`/files/${courseId}`);
   }
 
+  function navigateToDashBoard(){
+    navigate(`/Dashboard`);
+}
 
   const SaveChanges= async () => {
 
@@ -139,7 +142,7 @@ const handleCloseX=()=>{
 
       <Navbar expand="lg" className="bg-dark fixed-top">
         <Container fluid>
-          <Navbar.Brand href="#" className="text-light">Dashboard</Navbar.Brand>
+          <Navbar.Brand  onClick={navigateToDashBoard} className="text-light">Dashboard</Navbar.Brand>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">
             <Nav

@@ -14,6 +14,7 @@ import Attendance from "./Dashboard/Attendance"
 import Payment from "./Dashboard/Payment"
 import Files from './Dashboard/Files'
 import Whiteboard from './CoursesComponents/Whiteboard'
+import LandingPage from './SideBar/LandingPage'
 
 
 function App() {
@@ -22,12 +23,12 @@ function App() {
       
       <Routes>
         
-      <Route path='/' element={<Dashboard />} />
+        <Route path='/' element={<LandingPage />} />
+
         <Route path='/Dashboard' element={<Dashboard />} />
         <Route path='/Students' element={<Student />} />
         <Route path='/Professors' element={<Professor />} />
         <Route path='/Tasks' element={<TaskComponent />} />
-        
         
 
         <Route path='/course/:courseId' element={<CourseInformation />} />

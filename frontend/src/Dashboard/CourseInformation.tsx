@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate,useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axiosapi from "../api";
 import Professor from '../Professor/Professor';
 import Student from '../Student/Student';
@@ -79,7 +79,9 @@ function CourseInformation() {
         navigate(`/files/${courseId}`);
     }
 
-
+    function navigateToDashBoard(){
+        navigate(`/Dashboard`);
+    }
 
 
     const toggleFormDisplay = () => {
@@ -193,9 +195,9 @@ function CourseInformation() {
         <>
 
 
-<Navbar expand="lg" className="bg-dark fixed-top">
+            <Navbar expand="lg" className="bg-dark fixed-top">
                 <Container fluid>
-                    <Navbar.Brand href="#" className="text-light">Dashboard</Navbar.Brand>
+                    <Navbar.Brand  onClick={navigateToDashBoard}  className="text-light">Dashboard</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
                     <Navbar.Collapse id="navbarScroll">
                         <Nav
@@ -235,8 +237,8 @@ function CourseInformation() {
                             }} className="text-light">Payment</Nav.Link>
 
 
-                            
-                            
+
+
                         </Nav>
                         <Form className="d-flex">
                             <Form.Control
@@ -298,14 +300,14 @@ function CourseInformation() {
                 <span className="visually-hidden">Loading...</span>
             </div> */}
 
-            
+
 
 
 
             <Table striped bordered hover variant="light" size="lg" style={{ position: 'absolute', left: 0, top: 250, width: 500 }}>
                 <thead>
                     <tr>
-                
+
                         <th colSpan={2}>Student name</th>
                         <th>status</th>
                     </tr>
@@ -314,7 +316,7 @@ function CourseInformation() {
                     {students.map((student) => (
                         <tr key={student.UserID}>
                             <td colSpan={2}>{student.UserName}</td>
-                            <td><FontAwesomeIcon icon={faTrash} onClick={() => removeStudent(student.UserID)}/></td>
+                            <td><FontAwesomeIcon icon={faTrash} onClick={() => removeStudent(student.UserID)} /></td>
                         </tr>
                     ))}
                 </tbody>

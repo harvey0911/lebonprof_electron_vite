@@ -5,6 +5,7 @@ import {
   faListCheck,
   faBook,
   faGraduationCap,
+  faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
 import { Layout, Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
@@ -73,7 +74,13 @@ const SideBar = () => {
           <Link to="/Tasks">Tasks</Link>
         </Menu.Item>
         {/* Add margin or padding to create a gap between items */}
-        <div style={{ height: '334px' }} />
+
+        <Menu.Item key="/Logout" icon={<FontAwesomeIcon icon={faRightFromBracket} />}>
+          <Link to="/" onClick={() => handleClick('/')}>
+            Logout
+          </Link>
+        </Menu.Item>
+        <div style={{ height: '290px' }} />
       </Menu>
     </Sider>
   );
