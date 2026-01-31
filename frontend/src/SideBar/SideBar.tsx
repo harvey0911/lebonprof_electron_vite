@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUser,
@@ -7,82 +7,64 @@ import {
   faGraduationCap,
   faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
-import { Layout, Menu } from 'antd';
 import { Link, useLocation } from 'react-router-dom';
-import LeBonProfLogo from './LeBonProf.png'; // Import the logo image
-
-const { Sider } = Layout;
+import LeBonProfLogo from './LeBonProf.png';
 
 const SideBar = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [selectedKeys, setSelectedKeys] = useState(['']); // State to keep track of selected menu item
   const location = useLocation();
-
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-  };
-
-  const handleClick = (key) => {
-    setSelectedKeys([key]);
-  };
-
   const currentPath = location.pathname;
-  const defaultSelectedKey = currentPath === '/' ? '/Dashboard' : currentPath;
+  // Ensure the default selected key matches your routing logic
+  const activePath = currentPath === '/' ? '/Dashboard' : currentPath;
+
+  const menuItems = [
+    { key: '/Dashboard', label: 'Dashboard', icon: faBook },
+    { key: '/Students', label: 'Students', icon: faUser },
+    { key: '/Professors', label: 'Professors', icon: faGraduationCap },
+    { key: '/Tasks', label: 'Tasks', icon: faListCheck },
+    { key: '/Logout', label: 'Logout', icon: faRightFromBracket, path: '/' },
+  ];
 
   return (
-    <Sider
-      // collapsible
-      // collapsed={collapsed}
-      // onCollapse={toggleCollapsed}
-      width={200} // Adjust the width as needed
-      style={{
-        overflow: 'auto',
-        height: '100vh',
-        position: 'fixed',
-        left: 0,
-        top: 0,
-        zIndex: 1,
-      }}
-    >
-      
-      <Menu theme="dark" mode="inline" selectedKeys={[defaultSelectedKey]}>
-        
-      <div className="logo">
+    <aside className="w-64 bg-[#001529] h-screen fixed left-0 top-0 z-50 overflow-y-auto flex flex-col">
+      {/* Logo Section */}
+      <div className="p-8 flex justify-center">
         <img
           src={LeBonProfLogo}
           alt="Logo"
-          style={{ backgroundColor: 'white', padding: '20px', maxWidth: '200%', maxHeight: '200%', borderRadius: '50%' }}
+          className="bg-white p-4 w-32 h-32 rounded-full object-contain"
         />
       </div>
-      <div style={{ height: '40px' }} />
-        <Menu.Item key="/Dashboard" icon={<FontAwesomeIcon icon={faBook} />}>
-          <Link to="/Dashboard" onClick={() => handleClick('/Dashboard')}>
-            Dashboard
-          </Link>
-        </Menu.Item>
-        <Menu.Item key="/Students" icon={<FontAwesomeIcon icon={faUser} />}>
-          <Link to="/Students" onClick={() => handleClick('/Students')}>
-            Students
-          </Link>
-        </Menu.Item>
-        <Menu.Item key="/Professors" icon={<FontAwesomeIcon icon={faGraduationCap} />}>
-          <Link to="/Professors" onClick={() => handleClick('/Professors')}>
-            Professors
-          </Link>
-        </Menu.Item>
-        <Menu.Item key="/Tasks" icon={<FontAwesomeIcon icon={faListCheck} />}>
-          <Link to="/Tasks">Tasks</Link>
-        </Menu.Item>
-        {/* Add margin or padding to create a gap between items */}
 
-        <Menu.Item key="/Logout" icon={<FontAwesomeIcon icon={faRightFromBracket} />}>
-          <Link to="/" onClick={() => handleClick('/')}>
-            Logout
-          </Link>
-        </Menu.Item>
-        <div style={{ height: '290px' }} />
-      </Menu>
-    </Sider>
+      {/* Spacer */}
+      <div className="h-10" />
+
+      {/* Navigation Menu */}
+      <nav className="flex-1">
+        <ul className="space-y-2 px-2">
+          {menuItems.map((item) => {
+            const isActive = activePath === item.key;
+            return (
+              <li key={item.key}>
+                <Link
+                  to={item.path || item.key}
+                  className={`flex items-center gap-4 px-6 py-4 text-sm font-medium transition-colors duration-200 rounded-lg
+                    ${isActive 
+                      ? 'bg-blue-600 text-white' 
+                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    }`}
+                >
+                  <FontAwesomeIcon icon={item.icon} className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* Bottom Spacer to match your original height: '290px' */}
+      <div className="h-[290px]" />
+    </aside>
   );
 };
 
