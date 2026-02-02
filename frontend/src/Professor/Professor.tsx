@@ -154,7 +154,7 @@ function Professor() {
                                     required
                                     type="text"
                                     className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800"
-                                    placeholder="Dr. Jane Smith"
+                                    placeholder="Professor Name"
                                     value={newProfessor.UserName}
                                     onChange={(e) => setNewProfessor({ ...newProfessor, UserName: e.target.value })}
                                 />
@@ -165,7 +165,7 @@ function Professor() {
                                     required
                                     type="tel"
                                     className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800"
-                                    placeholder="+212 6..."
+                                    placeholder="e.g., +1234567890" 
                                     value={newProfessor.PhoneNumber}
                                     onChange={(e) => setNewProfessor({ ...newProfessor, PhoneNumber: e.target.value })}
                                 />
