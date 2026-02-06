@@ -1,265 +1,219 @@
-// import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-// import axiosapi from "../api";
-import SideBar from '../SideBar/SideBar';
-// import Student from '../Student/Student';
-// import DatePicker from "react-datepicker";
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown'; 
-import Table from 'react-bootstrap/Table';
-import { useState, useEffect } from 'react';
-import axiosapi from '../api';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Student from '../Student/Student';
-import Dropdown from 'react-bootstrap/Dropdown';
-import NavItem from 'react-bootstrap/NavItem';
-import NavLink from 'react-bootstrap/NavLink';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import axiosapi from "../api";
+import {
+    Search,
+    BookOpen,
+    ClipboardCheck,
+    FileText,
+    CreditCard,
+    GraduationCap,
+    Calendar as CalendarIcon,
+    Save,
+    CheckCircle,
+    XCircle,
+    Clock
+} from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import Student from '../Student/Student';
+
 function Attendance() {
-
-
+    const { courseId } = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const [students, setStudents] = useState<Student[]>([]);
-    const { courseId } = useParams();
-    const [status,setStatus] = useState('...');
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const navigate = useNavigate();
-
-
-
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             if (courseId) {
-    //                 // Format the selected date as YYYY-MM-DD
-    //                 const formattedDate = selectedDate.toISOString().split('T')[0];
-        
-    //                 // Fetch students' status for the selected date
-    //                 const studentsResponse = await axiosapi.get(`/fetchStudentsByCourse/${courseId}`);
-    //                 console.log('Students response:', studentsResponse); // Log the response
-    //                 setStudents(studentsResponse.data);
-
-                   
-    //             }
-    //         } catch (error) {
-    //             console.error('Error fetching enrolled students', error);
-    //         }
-    //     };
-        
-
-    //     fetchData();
-    // }, [courseId, selectedDate]);
-
-
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (courseId) {
-                    // Format the selected date as YYYY-MM-DD
                     const formattedDate = selectedDate.toISOString().split('T')[0];
-            
-                    // Fetch students' status for the selected date
-                    const studentsResponse = await axiosapi.get(`/fetchStudentsStatus/${courseId}?date=${formattedDate}`);
-                    console.log('Students response:', studentsResponse.data); // Log the response
-                    setStudents(studentsResponse.data);
+                    const response = await axiosapi.get(`/fetchStudentsStatus/${courseId}?date=${formattedDate}`);
+                    setStudents(response.data);
                 }
             } catch (error) {
-                console.error('Error fetching enrolled students', error);
+                console.error('Error fetching attendance data', error);
             }
         };
-            
         fetchData();
     }, [courseId, selectedDate]);
-    
 
-    
-    function navigateToCourseInformation() {
-        navigate(`/course/${courseId}`);
-    }
+    const updateStatus = (studentId: number, newStatus: string) => {
+        setStudents(prev => prev.map(s =>
+            s.UserID === studentId ? { ...s, Status: newStatus } : s
+        ));
+    };
 
-    function navigateToAttendance() {
-        navigate(`/attendance/${courseId}`);
-    }
-
-    function navigateToPayment() {
-        navigate(`/payment/${courseId}`);
-    }
-
-    function navigateToFiles() {
-        navigate(`/files/${courseId}`);
-    }
-
-    
-    function navigateToDashBoard(){
-        navigate(`/Dashboard`);
-    }
-
-
-    function TurnLate(studentId: number) {
-        updateStatus(studentId, 'Late');
-    }
-
-    function TurnAbsent(studentId: number) {
-        updateStatus(studentId, 'Absent');
-    }
-
-    function TurnPresent(studentId: number) {
-        updateStatus(studentId, 'Present');
-        
-    }
-
-    function updateStatus(studentId: number, newStatus: string) {
-        // Update the status for the specific student
-        const updatedStudents = students.map((student) => {
-            if (student.UserID === studentId) {
-                return { ...student, Status: newStatus };
-            }
-            return student;
-        });
-
-        setStudents(updatedStudents);
-    }
-
-
-
-
-    const SaveAttendance = async () => {
+    const handleSaveAttendance = async () => {
+        setIsSaving(true);
         try {
-            // Prepare the attendance data to be saved
             const attendanceData = students.map(student => ({
                 studentId: student.UserID,
                 courseId: courseId,
-                date: selectedDate.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+                date: selectedDate.toISOString().split('T')[0],
                 status: student.Status
             }));
-    
-            // Send the attendance data to the backend to be saved
-            const response = await axiosapi.post('/saveAttendance', attendanceData);
-    
-            // Handle the response (optional)
-            console.log('Attendance saved successfully:', response);
-    
-            // Optionally, you can show a success message to the user
+
+            await axiosapi.post('/saveAttendance', attendanceData);
             alert('Attendance saved successfully!');
         } catch (error) {
-            // Handle errors
-            console.error('Error saving attendance:', error);
-    
-            // Optionally, you can show an error message to the user
-            alert('Error saving attendance. Please try again later.');
+            console.error('Error saving attendance', error);
+            alert('Failed to save attendance.');
+        } finally {
+            setIsSaving(false);
         }
     };
-    
+
+    const navItems = [
+        { label: 'Course Info', icon: BookOpen, path: `/course/${courseId}` },
+        { label: 'Attendance', icon: ClipboardCheck, path: `/attendance/${courseId}` },
+        { label: 'Files', icon: FileText, path: `/files/${courseId}` },
+        { label: 'Payment', icon: CreditCard, path: `/payment/${courseId}` },
+    ];
+
+    const isActive = (path: string) => location.pathname === path;
+
+    const getStatusStyles = (status: string) => {
+        switch (status) {
+            case 'Present': return 'bg-green-100 text-green-700 border-green-200';
+            case 'Absent': return 'bg-red-100 text-red-700 border-red-200';
+            case 'Late': return 'bg-amber-100 text-amber-700 border-amber-200';
+            default: return 'bg-slate-100 text-slate-500 border-slate-200';
+        }
+    };
 
     return (
-        <>
+        <div className="min-h-screen bg-slate-50 font-sans">
+            {/* Consistent Top Navigation */}
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
+                <div className="container mx-auto px-6 py-4">
+                    <div className="flex items-center justify-between gap-8">
+                        <div onClick={() => navigate('/Dashboard')} className="flex items-center gap-3 cursor-pointer group">
+                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform">
+                                <GraduationCap className="w-6 h-6" />
+                            </div>
+                            <span className="text-xl font-black text-slate-900 tracking-tight">LeBonProf</span>
+                        </div>
 
-            <Navbar expand="lg" className="bg-dark fixed-top">
-                <Container fluid>
-                    <Navbar.Brand  onClick={navigateToDashBoard}  className="text-light">Dashboard</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="navbarScroll" />
-                    <Navbar.Collapse id="navbarScroll">
-                        <Nav
-                            className="me-auto my-2 my-lg-0"
-                            style={{ maxHeight: '100px' }}
-                            navbarScroll
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                            {navItems.map((item) => (
+                                <button
+                                    key={item.label}
+                                    onClick={() => navigate(item.path)}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap
+                                        ${isActive(item.path) ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
+                                >
+                                    <item.icon className={`w-4 h-4 ${isActive(item.path) ? 'text-blue-600' : 'text-slate-400'}`} />
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="hidden md:block relative w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                            <input type="text" placeholder="Search students..." className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-xl outline-none text-sm font-bold text-slate-700 transition-all" />
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <main className="container mx-auto p-6 md:p-10 max-w-7xl">
+                {/* Attendance Controls Card */}
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 mb-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div className="flex items-center gap-6">
+                            <div className="relative">
+                                <label className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 block">Select Date</label>
+                                <div className="flex items-center gap-3 bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 hover:border-blue-200 transition-colors cursor-pointer">
+                                    <CalendarIcon className="w-5 h-5 text-blue-600" />
+                                    <DatePicker
+                                        selected={selectedDate}
+                                        onChange={(date: Date) => setSelectedDate(date)}
+                                        className="bg-transparent font-bold text-slate-700 outline-none cursor-pointer"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleSaveAttendance}
+                            disabled={isSaving}
+                            className="w-full md:w-auto bg-slate-900 hover:bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all shadow-xl shadow-slate-200 active:scale-95 disabled:opacity-50"
                         >
+                            <Save className="w-5 h-5" />
+                            {isSaving ? 'Saving...' : 'Save Attendance'}
+                        </button>
+                    </div>
+                </div>
 
-
-                            <Nav.Link onClick={() => {
-                                const parsedCourseId = courseId ? parseInt(courseId, 10) : NaN;
-                                if (!isNaN(parsedCourseId)) {
-                                    navigateToCourseInformation();
-                                }
-                            }} className="text-light">Course information</Nav.Link>
-
-                            <Nav.Link onClick={() => {
-                                const parsedCourseId = courseId ? parseInt(courseId, 10) : NaN;
-                                if (!isNaN(parsedCourseId)) {
-                                    navigateToAttendance();
-                                }
-                            }} className="text-light">Attendance</Nav.Link>
-
-                            <Nav.Link onClick={() => {
-                                const parsedCourseId = courseId ? parseInt(courseId, 10) : NaN;
-                                if (!isNaN(parsedCourseId)) {
-                                    navigateToFiles();
-                                }
-                            }} className="text-light">Files</Nav.Link>
-
-
-                            <Nav.Link onClick={() => {
-                                const parsedCourseId = courseId ? parseInt(courseId, 10) : NaN;
-                                if (!isNaN(parsedCourseId)) {
-                                    navigateToPayment();
-                                }
-                            }} className="text-light">Payment</Nav.Link>
-
-
-
-
-                        </Nav>
-                        <Form className="d-flex">
-                            <Form.Control
-                                type="search"
-                                placeholder="Search"
-                                className="me-2"
-                                aria-label="Search"
-                            />
-                            <Button variant="outline-success" className="text-light">Search</Button>
-                        </Form>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-
-            
-
-            <div style={{ position: 'absolute', top: 65, right: 40 }}>
-                <DatePicker selected={selectedDate} onChange={date => setSelectedDate(date)} />
-                <Button className="bg-dark" onClick={SaveAttendance}> Save </Button>
-            </div>
-
-            <Table striped bordered hover variant="light" size="lg" style={{ position: 'absolute', left: 0, top: 150, width: 500 }}>
-                <thead>
-                    <tr>
-                        <th>Student ID</th>
-                        <th>Student name</th>
-                        <th colSpan={2}>status</th>
-                    </tr>
-                </thead>
-                <tbody>
-    {students.map((student) => (
-        <tr key={student.UserID}>
-            <td>{student.UserID}</td>
-            <td colSpan={2}>{student.UserName}</td>
-            <td>
-                <Dropdown as={NavItem}>
-                    <Dropdown.Toggle as={NavLink}>{student.Status}</Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => TurnPresent(student.UserID)}>Present</Dropdown.Item>
-                        <Dropdown.Item onClick={() => TurnAbsent(student.UserID)}>Absent</Dropdown.Item>
-                        <Dropdown.Item onClick={() => TurnLate(student.UserID)}>Late</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            </td>
-        </tr>
-    ))}
-</tbody>
-
-
-            </Table>
-
-        </>
-
+                {/* Attendance Table */}
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                    <div className="p-8 border-b border-slate-50">
+                        <h3 className="text-xl font-black text-slate-900">Student Roll Call</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 border-b border-slate-100">
+                                <tr>
+                                    <th className="px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Student</th>
+                                    <th className="px-8 py-4 text-center text-xs font-black uppercase tracking-widest text-slate-400">Status</th>
+                                    <th className="px-8 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">Mark Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {students.map((student) => (
+                                    <tr key={student.UserID} className="hover:bg-slate-50/50 transition duration-150">
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold border-2 border-white shadow-sm">
+                                                    {student.UserName.charAt(0).toUpperCase()}
+                                                </div>
+                                                <span className="font-bold text-slate-700">{student.UserName}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-5 text-center">
+                                            <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border ${getStatusStyles(student.Status || '...')}`}>
+                                                {student.Status || 'Not Marked'}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => updateStatus(student.UserID, 'Present')}
+                                                    className={`p-2 rounded-xl transition-all ${student.Status === 'Present' ? 'bg-green-600 text-white' : 'bg-slate-50 text-slate-400 hover:text-green-600 hover:bg-green-50'}`}
+                                                    title="Present"
+                                                >
+                                                    <CheckCircle className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => updateStatus(student.UserID, 'Absent')}
+                                                    className={`p-2 rounded-xl transition-all ${student.Status === 'Absent' ? 'bg-red-600 text-white' : 'bg-slate-50 text-slate-400 hover:text-red-600 hover:bg-red-50'}`}
+                                                    title="Absent"
+                                                >
+                                                    <XCircle className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => updateStatus(student.UserID, 'Late')}
+                                                    className={`p-2 rounded-xl transition-all ${student.Status === 'Late' ? 'bg-amber-500 text-white' : 'bg-slate-50 text-slate-400 hover:text-amber-600 hover:bg-amber-50'}`}
+                                                    title="Late"
+                                                >
+                                                    <Clock className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
     );
 }
 
 export default Attendance;
-
-

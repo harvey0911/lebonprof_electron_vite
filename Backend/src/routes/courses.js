@@ -61,6 +61,28 @@ router.delete('/deletecourse/:CourseID', (req, res) => {
     });
 });
 
+// Endpoint to update a course
+router.put('/updatecourse/:CourseID', (req, res) => {
+    const { CourseID } = req.params;
+    const { CourseName } = req.body;
+
+    if (!CourseName) {
+        return res.status(400).send('Missing CourseName');
+    }
+
+    const query = `UPDATE Courses SET CourseName = ? WHERE CourseID = ?`;
+
+    db.run(query, [CourseName, CourseID], function (err) {
+        if (err) {
+            console.error('Error updating course', err);
+            res.status(500).send('An error occurred while updating the course');
+        } else {
+            console.log(`Course with CourseID ${CourseID} has been updated`);
+            res.status(200).send({ message: 'Course updated successfully' });
+        }
+    });
+});
+
 router.get('/fetchCourse/:CourseID', (req, res) => {
     const { CourseID } = req.params;
 
