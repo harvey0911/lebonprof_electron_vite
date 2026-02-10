@@ -117,4 +117,26 @@ router.get('/fetchStudentsStatus/:courseId', async (req, res) => {
     }
 });
 
+// Get all 'Present' attendance records for a specific student across all courses
+router.get('/student-attendance/:studentId', (req, res) => {
+    const { studentId } = req.params;
+
+    const query = `
+        SELECT a.*, c.CourseName
+        FROM Attendance a
+        JOIN Courses c ON a.CourseID = c.CourseID
+        WHERE a.StudentID = ? AND a.Status = 'Present'
+        ORDER BY a.Date DESC
+    `;
+
+    db.all(query, [studentId], (err, rows) => {
+        if (err) {
+            console.error('Error fetching student attendance', err);
+            res.status(500).json({ error: 'Failed to fetch student attendance' });
+        } else {
+            res.status(200).json(rows);
+        }
+    });
+});
+
 export default router;

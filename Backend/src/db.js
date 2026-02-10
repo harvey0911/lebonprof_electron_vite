@@ -124,6 +124,38 @@ function createTables() {
             }
         }
     );
+
+    // Create the Payments table
+    db.run(
+        `CREATE TABLE IF NOT EXISTS Payments (
+            PaymentID INTEGER PRIMARY KEY AUTOINCREMENT,
+            CourseID INTEGER NOT NULL,
+            StudentID INTEGER NOT NULL,
+            Amount REAL NOT NULL,
+            PaymentDate DATE DEFAULT CURRENT_DATE,
+            Notes TEXT,
+            ReceiptPDF TEXT,
+            FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),
+            FOREIGN KEY (StudentID) REFERENCES Users(UserID)
+        )`,
+        (err) => {
+            if (err) {
+                console.error('Error creating Payments table', err);
+            } else {
+                console.log('Payments table created or already exists');
+            }
+        }
+    );
+
+    // Migration to add ReceiptPDF column if it doesn't exist
+    db.run(`ALTER TABLE Payments ADD COLUMN ReceiptPDF TEXT`, (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding ReceiptPDF column', err);
+        } else {
+            console.log('ReceiptPDF column checked/added');
+        }
+    });
+
 }
 
 // Helper function for database query with promise (SELECT/all)

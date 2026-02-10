@@ -13,11 +13,11 @@ import {
     ClipboardCheck,
     FileText,
     CreditCard,
-    User,
-    GraduationCap
+    User
 } from 'lucide-react';
 import Professor from '../Professor/Professor';
 import Student from '../Student/Student';
+import LeBonProfLogo from '../SideBar/LeBonProf.png';
 
 function CourseInformation() {
     const [courseTitle, setCourseTitle] = useState('');
@@ -128,8 +128,8 @@ function CourseInformation() {
                     <div className="flex items-center justify-between gap-8">
                         {/* Logo / Brand */}
                         <div onClick={() => navigate('/Dashboard')} className="flex items-center gap-3 cursor-pointer group">
-                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform">
-                                <GraduationCap className="w-6 h-6" />
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform p-1.5">
+                                <img src={LeBonProfLogo} alt="LeBonProf Logo" className="w-full h-full object-contain" />
                             </div>
                             <span className="text-xl font-black text-slate-900 tracking-tight">LeBonProf</span>
                         </div>

@@ -95,4 +95,49 @@ router.get('/fetch_Students_not_enrolled/:courseId', (req, res) => {
     }
 });
 
+// Endpoint to fetch full student profile
+router.get('/student-profile/:studentId', (req, res) => {
+    const studentId = req.params.studentId;
+
+    const studentQuery = `SELECT * FROM Users WHERE UserID = ? AND UserType = 'Student'`;
+    const coursesQuery = `
+        SELECT c.CourseID, c.CourseName, 
+               (SELECT COUNT(*) FROM Sessions s WHERE s.CourseID = c.CourseID) as TotalSessions,
+               (SELECT COUNT(*) FROM Attendance a WHERE a.CourseID = c.CourseID AND a.StudentID = ? AND a.Status = 'Present') as PresentSessions,
+               (SELECT SUM(Amount) FROM Payments p WHERE p.CourseID = c.CourseID AND p.StudentID = ?) as TotalPaid
+        FROM Courses c
+        JOIN Enrollments e ON c.CourseID = e.CourseID
+        WHERE e.StudentID = ?
+    `;
+
+    db.get(studentQuery, [studentId], (err, student) => {
+        if (err) {
+            console.error('Error fetching student profile', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+        if (!student) {
+            return res.status(404).json({ error: 'Student not found' });
+        }
+
+        db.all(coursesQuery, [studentId, studentId, studentId], (err, courses) => {
+            if (err) {
+                console.error('Error fetching student courses', err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+
+            // Calculate aggregate stats
+            const totalpaid = courses.reduce((sum, c) => sum + (c.TotalPaid || 0), 0);
+
+            res.json({
+                student,
+                courses,
+                stats: {
+                    totalCourses: courses.length,
+                    totalPaid: totalpaid
+                }
+            });
+        });
+    });
+});
+
 export default router;

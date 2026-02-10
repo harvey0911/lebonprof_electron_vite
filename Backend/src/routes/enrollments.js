@@ -71,7 +71,7 @@ router.get('/fetchStudentsByCourse/:CourseID', (req, res) => {
     const { CourseID } = req.params;
 
     const query = `
-            SELECT Users.UserID, Users.UserName 
+            SELECT Users.UserID, Users.UserName, Users.PhoneNumber
             FROM Users 
             JOIN Enrollments ON Users.UserID = Enrollments.StudentID 
             WHERE Enrollments.CourseID = ?`;

@@ -100,7 +100,10 @@ function Student() {
                 <div className="space-y-4 max-w-5xl">
                     {filteredStudents.map((student) => (
                         <div key={student.UserID} className="bg-white p-4 px-8 rounded-3xl shadow-sm border border-slate-100 hover:border-blue-200 transition-all group flex items-center justify-between">
-                            <div className="flex items-center gap-6">
+                            <div
+                                onClick={() => window.location.hash = `#/student/${student.UserID}`}
+                                className="flex items-center gap-6 cursor-pointer flex-1"
+                            >
                                 <div className="p-3 bg-slate-50 group-hover:bg-blue-50 rounded-2xl text-slate-400 group-hover:text-blue-600 transition-colors">
                                     <User className="w-6 h-6" />
                                 </div>
