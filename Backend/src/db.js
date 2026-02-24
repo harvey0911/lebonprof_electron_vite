@@ -1,7 +1,8 @@
 import sqlite3 from "sqlite3";
 import bcrypt from "bcrypt";
 
-const db = new sqlite3.Database(process.env.DB_PATH || './lebonprof.db');
+const dbPath = process.env.DB_PATH || './lebonprof.db';
+const db = new sqlite3.Database(dbPath);
 
 // Function to create tables
 async function createTables() {

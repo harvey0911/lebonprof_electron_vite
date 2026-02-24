@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
+import { spawn, ChildProcess } from 'node:child_process'
 
 // The built directory structure
 //
@@ -17,6 +18,48 @@ process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.
 let win: BrowserWindow | null
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
+
+let backendProcess: ChildProcess | null = null
+
+function startBackend() {
+  const backendDir = app.isPackaged
+    ? path.join(process.resourcesPath, 'Backend')
+    : path.join(__dirname, '../../Backend')
+
+  const serverPath = path.join(backendDir, 'src/Server.js')
+  const dbPath = app.isPackaged
+    ? path.join(app.getPath('userData'), 'lebonprof.db')
+    : path.join(backendDir, 'lebonprof.db')
+
+  console.log('Starting backend at:', serverPath)
+  console.log('Using database at:', dbPath)
+
+  backendProcess = spawn(process.execPath, [serverPath], {
+    cwd: backendDir,
+    env: {
+      ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
+      DB_PATH: dbPath,
+      PORT: '5000'
+    }
+  })
+
+  if (backendProcess.stdout) {
+    backendProcess.stdout.on('data', (data) => {
+      console.log(`Backend: ${data}`)
+    })
+  }
+
+  if (backendProcess.stderr) {
+    backendProcess.stderr.on('data', (data) => {
+      console.error(`Backend Error: ${data}`)
+    })
+  }
+
+  backendProcess.on('close', (code) => {
+    console.log(`Backend process exited with code ${code}`)
+  })
+}
 
 function createWindow() {
   win = new BrowserWindow({
@@ -47,7 +90,13 @@ function createWindow() {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
-    win = null
+  }
+})
+
+app.on('before-quit', () => {
+  if (backendProcess) {
+    backendProcess.kill()
+    backendProcess = null
   }
 })
 
@@ -59,4 +108,7 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  startBackend()
+  createWindow()
+})
