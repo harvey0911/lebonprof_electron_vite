@@ -25,7 +25,6 @@ router.post('/addtask', (req, res) => {
 });
 
 router.get('/fetchtask', (req, res) => {
-    // Sorting by CreatedAt DESC so new tasks appear at the top
     const query = `SELECT * FROM Tasks ORDER BY CreatedAt DESC`;
 
     db.all(query, [], (err, tasks) => {

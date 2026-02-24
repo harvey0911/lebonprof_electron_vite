@@ -1,36 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import LeBonProfLogo from './LeBonProf.png';
+import axiosapi from '../api';
 
 function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [validated, setValidated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-      setValidated(true);
       return;
     }
-    event.preventDefault();
+
     setLoading(true);
-    setTimeout(() => {
+    setError('');
+
+    try {
+      const response = await axiosapi.post('/login', { password });
+      if (response.data.success) {
+        localStorage.setItem('isAuthenticated', 'true');
+        navigate('/dashboard');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Invalid password or server error');
+    } finally {
       setLoading(false);
-      navigate('/dashboard');
-    }, 2000);
+    }
   };
 
   return (
     <div className="fixed inset-0 flex w-full h-screen bg-white overflow-hidden">
-      
+
       <div className="relative hidden lg:flex lg:w-[40%] flex-col justify-between p-12 bg-gradient-to-br from-blue-700 via-blue-600 to-blue-400">
-        
-        
+
+
         <div className="relative z-10 text-center">
           <h1 className="text-white text-3xl tracking-[0.1em] font-serif italic font-light opacity-95">
             Le Bon Prof
@@ -38,13 +47,13 @@ function LandingPage() {
           <div className="h-px w-12 bg-white/30 mx-auto mt-2"></div>
         </div>
 
-        
+
         <div className="relative z-10 flex flex-col items-center justify-center flex-grow">
           <div className="w-80 h-80 bg-white rounded-full flex items-center justify-center shadow-2xl p-10 animate-in zoom-in duration-500">
-            <img 
-              src={LeBonProfLogo} 
-              alt="Logo" 
-              className="w-full h-auto object-contain scale-110" 
+            <img
+              src={LeBonProfLogo}
+              alt="Logo"
+              className="w-full h-auto object-contain scale-110"
             />
           </div>
         </div>
@@ -54,9 +63,9 @@ function LandingPage() {
         </div>
       </div>
 
-      
+
       <div className="w-full lg:w-[60%] flex flex-col items-center justify-center p-8 bg-white relative">
-        
+
         {loading && (
           <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
             <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
@@ -70,24 +79,20 @@ function LandingPage() {
           </div>
 
           <form noValidate onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-4">
-              {/* Username field */}
-              <div className="relative group">
-                <input
-                  required
-                  type="text"
-                  placeholder="Username"
-                  className="block w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 focus:bg-white transition-all shadow-sm"
-                />
-                <User className="absolute right-5 top-4 h-5 w-5 text-slate-200 group-focus-within:text-blue-600 transition-colors" />
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl font-medium animate-in fade-in slide-in-from-top-1 duration-300">
+                {error}
               </div>
-
+            )}
+            <div className="space-y-4">
               {/* Password field */}
               <div className="relative group">
                 <input
                   required
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 focus:bg-white transition-all shadow-sm"
                 />
                 <button
@@ -115,7 +120,7 @@ function LandingPage() {
               >
                 Enter Portal
               </button>
-              
+
               <div className="mt-8 text-center">
                 <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">
                   No account? <span className="text-blue-600 cursor-pointer hover:underline">Request Access</span>

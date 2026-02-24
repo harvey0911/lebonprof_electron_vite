@@ -13,9 +13,9 @@ import CourseInformation from './Dashboard/CourseInformation'
 import Attendance from "./Dashboard/Attendance"
 import Payment from "./Dashboard/Payment"
 import Files from './Dashboard/Files'
-import Whiteboard from './CoursesComponents/Whiteboard'
 import LandingPage from './SideBar/LandingPage'
 import StudentInfo from './Student/StudentInfo'
+import Settings from './Dashboard/Settings'
 
 
 function App() {
@@ -39,7 +39,7 @@ function App() {
         <Route path='/payment/:courseId' element={<Payment />} />
         <Route path='/student/:studentId' element={<StudentInfo />} />
         <Route path='/files/:courseId' element={<Files />} />
-        <Route path='/Canvas/:courseId' element={<Whiteboard />} />
+        <Route path='/Settings' element={<Settings />} />
 
       </Routes>
 

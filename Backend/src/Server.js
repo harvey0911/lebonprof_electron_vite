@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { db } from './db.js'; // Importing db triggers table creation
+import authRoutes from './routes/auth.js';
 import taskRoutes from './routes/tasks.js';
 import userRoutes from './routes/users.js';
 import courseRoutes from './routes/courses.js';
@@ -11,11 +12,15 @@ import paymentRoutes from './routes/payments.js';
 
 const app = express();
 
+const PORT = process.env.PORT || 5000;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
+
 // Middleware to parse JSON
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+app.use(cors({ origin: CORS_ORIGIN, credentials: true }))
 app.use(express.json({ limit: '50mb' }));
 
 // Routes
+app.use('/', authRoutes);
 app.use('/', taskRoutes);
 app.use('/', userRoutes);
 app.use('/', courseRoutes);
@@ -25,4 +30,4 @@ app.use('/', attendanceRoutes);
 app.use('/', paymentRoutes);
 
 // Start the server
-app.listen(5000, () => console.log("Server is running on port 5000"));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

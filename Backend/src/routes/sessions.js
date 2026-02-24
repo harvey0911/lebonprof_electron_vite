@@ -21,12 +21,12 @@ router.get('/fetchSessions/:courseId', async (req, res) => {
 
 // Endpoint to add a new session
 router.post('/addSession', async (req, res) => {
-    const { courseId, title, whiteboardContent } = req.body;
+    const { courseId, title, description } = req.body;
 
     try {
         // Insert a new session into the Sessions table
-        const query = `INSERT INTO Sessions (CourseID, Title, WhiteboardContent) VALUES (?, ?, ?)`;
-        const result = await dbRun(query, [courseId, title, whiteboardContent]);
+        const query = `INSERT INTO Sessions (CourseID, Title, Description) VALUES (?, ?, ?)`;
+        const result = await dbRun(query, [courseId, title, description]);
 
         // Return the newly created session
         res.status(201).json({ sessionId: result.lastID });
@@ -40,12 +40,8 @@ router.delete('/deleteSession/:sessionTitle', async (req, res) => {
     const { sessionTitle } = req.params;
 
     try {
-        // Perform deletion operation based on session title
         const query = `DELETE FROM Sessions WHERE Title = ?`;
-        await dbQuery(query, [sessionTitle]); // Note: dbQuery (all) is used in original code on delete, which is weird, but I'll stick to dbQuery/dbRun. Ideally dbRun.
-        // The original code used `dbQuery` for DELETE which is `db.all`. That returns empty list for DELETE.
-        // It should be `dbRun`. I'll switch to `dbRun` to be correct, as `db.all` on DELETE is valid but odd.
-        // Wait, original `dbQuery` was `db.all`. I will use `dbRun` for delete as it is more appropriate.
+        await dbRun(query, [sessionTitle]);
 
         res.status(200).json({ message: 'Session deleted successfully' });
     } catch (error) {

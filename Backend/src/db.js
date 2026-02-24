@@ -1,9 +1,10 @@
 import sqlite3 from "sqlite3";
+import bcrypt from "bcrypt";
 
-const db = new sqlite3.Database('./lebonprof.db');
+const db = new sqlite3.Database(process.env.DB_PATH || './lebonprof.db');
 
 // Function to create tables
-function createTables() {
+async function createTables() {
     // Create the Admins table
     db.run(
         `CREATE TABLE IF NOT EXISTS Admins (
@@ -11,11 +12,19 @@ function createTables() {
                 UserName TEXT NOT NULL,
                 Password TEXT NOT NULL
             )`,
-        (err) => {
+        async (err) => {
             if (err) {
                 console.error('Error creating Admins table', err);
             } else {
                 console.log('Admins table created or already exists');
+                // Check if admin exists, if not create default
+                db.get("SELECT COUNT(*) as count FROM Admins", [], async (err, row) => {
+                    if (!err && row.count === 0) {
+                        const hashedPassword = await bcrypt.hash('admin', 10);
+                        db.run("INSERT INTO Admins (UserName, Password) VALUES (?, ?)", ['admin', hashedPassword]);
+                        console.log('Default admin created');
+                    }
+                });
             }
         }
     );
@@ -92,7 +101,7 @@ function createTables() {
                 SessionID INTEGER PRIMARY KEY AUTOINCREMENT,
                 CourseID INTEGER,
                 Title TEXT,
-                WhiteboardContent TEXT,
+                Description TEXT,
                 CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
             )`,
@@ -101,6 +110,19 @@ function createTables() {
                 console.error('Error creating Sessions table', err);
             } else {
                 console.log('Sessions table created or already exists');
+
+                db.all("PRAGMA table_info(Sessions)", (err, rows) => {
+                    if (!err && rows) {
+                        const hasWhiteboard = rows.some(row => row.name === 'WhiteboardContent');
+                        const hasDescription = rows.some(row => row.name === 'Description');
+                        if (hasWhiteboard && !hasDescription) {
+                            db.run("ALTER TABLE Sessions RENAME COLUMN WhiteboardContent TO Description", (err) => {
+                                if (err) console.error('Error migrating Sessions table', err);
+                                else console.log('Sessions table migrated: WhiteboardContent -> Description');
+                            });
+                        }
+                    }
+                });
             }
         }
     );

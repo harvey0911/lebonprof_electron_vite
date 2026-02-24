@@ -11,19 +11,21 @@ import {
   X,
   FolderOpen
 } from 'lucide-react';
-import CanvasCard from './CanvasCard';
+import SessionCard from './SessionCard';
 import LeBonProfLogo from '../SideBar/LeBonProf.png';
 
 interface Session {
   SessionID: number;
   courseId: string;
   Title: string;
+  Description: string;
 }
 
 function Files() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const { courseId } = useParams();
   const [newSessionTitle, setNewSessionTitle] = useState('');
+  const [newSessionDescription, setNewSessionDescription] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const [showModal, setShowModal] = useState(false);
@@ -64,7 +66,7 @@ function Files() {
       await axiosapi.post('/AddSession', {
         courseId,
         title: newSessionTitle,
-        whiteboardContent: '',
+        description: newSessionDescription,
       });
 
       // Refresh sessions
@@ -72,8 +74,9 @@ function Files() {
       setSessions(response.data);
       setShowModal(false);
       setNewSessionTitle('');
+      setNewSessionDescription('');
     } catch (error) {
-      console.error('Error adding whiteboard session', error);
+      console.error('Error adding session', error);
     }
   };
 
@@ -124,7 +127,6 @@ function Files() {
       </nav>
 
       <main className="container mx-auto p-6 md:p-10 max-w-7xl">
-        {/* Header Card */}
         <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-12 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
 
@@ -140,19 +142,19 @@ function Files() {
               onClick={() => setShowModal(true)}
               className="bg-blue-600 hover:bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all shadow-xl shadow-blue-200 active:scale-95 whitespace-nowrap"
             >
-              <Plus className="w-5 h-5" /> New Whiteboard
+              <Plus className="w-5 h-5" /> New Session
             </button>
           </div>
         </div>
 
-        {/* Sessions Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {sessions.map((session) => (
-            <CanvasCard
+            <SessionCard
               key={session.SessionID}
               courseId={courseId || ''}
               SessionID={session.SessionID}
               Title={session.Title}
+              Description={session.Description}
             />
           ))}
 
@@ -162,19 +164,18 @@ function Files() {
                 <FolderOpen className="w-10 h-10" />
               </div>
               <h3 className="text-xl font-black text-slate-900 mb-2">No sessions found</h3>
-              <p className="text-slate-400 font-medium mb-8">Create your first whiteboard to get started.</p>
+              <p className="text-slate-400 font-medium mb-8">Create your first lesson to get started.</p>
               <button
                 onClick={() => setShowModal(true)}
                 className="text-blue-600 font-bold hover:underline"
               >
-                Create new whiteboard
+                Create new session
               </button>
             </div>
           )}
         </div>
       </main>
 
-      {/* New Session Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl p-8 animate-in zoom-in duration-300">
@@ -186,16 +187,28 @@ function Files() {
             </div>
 
             <div className="space-y-6">
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Session Title</label>
-                <input
-                  type="text"
-                  value={newSessionTitle}
-                  onChange={(e) => setNewSessionTitle(e.target.value)}
-                  placeholder="e.g. Chapter 1: Introduction"
-                  className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800"
-                  autoFocus
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Session Title</label>
+                  <input
+                    type="text"
+                    value={newSessionTitle}
+                    onChange={(e) => setNewSessionTitle(e.target.value)}
+                    placeholder="e.g. Chapter 1: Introduction"
+                    className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Brief Description</label>
+                  <textarea
+                    value={newSessionDescription}
+                    onChange={(e) => setNewSessionDescription(e.target.value)}
+                    placeholder="What will be covered in this session?"
+                    className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800 min-h-[100px] resize-none"
+                  />
+                </div>
               </div>
 
               <div className="flex gap-4">
