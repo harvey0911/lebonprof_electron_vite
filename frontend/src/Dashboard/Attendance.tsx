@@ -99,7 +99,6 @@ function Attendance() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
-            {/* Consistent Top Navigation */}
             <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center justify-between gap-8">
@@ -124,7 +123,6 @@ function Attendance() {
                             ))}
                         </div>
 
-                        {/* Search Bar */}
                         <div className="hidden md:block relative w-64">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                             <input
@@ -138,7 +136,6 @@ function Attendance() {
             </nav>
 
             <main className="container mx-auto p-6 md:p-10 max-w-7xl">
-                {/* Attendance Controls Card */}
                 <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 mb-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                         <div className="flex items-center gap-6">
@@ -166,7 +163,6 @@ function Attendance() {
                     </div>
                 </div>
 
-                {/* Attendance Table */}
                 <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                     <div className="p-8 border-b border-slate-50">
                         <h3 className="text-xl font-black text-slate-900">{t('student_roll_call')}</h3>

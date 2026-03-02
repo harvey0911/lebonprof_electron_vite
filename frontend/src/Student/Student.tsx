@@ -94,7 +94,6 @@ function Student() {
                 </div>
             </div>
 
-            {/* List View Container */}
             <div className="space-y-4 max-w-5xl">
                 {filteredStudents.map((student) => (
                     <div key={student.UserID} className="bg-white p-4 px-8 rounded-3xl shadow-sm border border-slate-100 hover:border-blue-200 transition-all group flex items-center justify-between">

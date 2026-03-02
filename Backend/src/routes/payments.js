@@ -3,7 +3,6 @@ import { db } from '../db.js';
 
 const router = express.Router();
 
-// Record a payment
 router.post('/payments', (req, res) => {
     const { courseId, studentId, amount, date, notes, receiptPdf } = req.body;
 
@@ -23,7 +22,6 @@ router.post('/payments', (req, res) => {
     });
 });
 
-// Get payments for a course (optionally filtered by student)
 router.get('/payments/:courseId', (req, res) => {
     const { courseId } = req.params;
     const { studentId } = req.query;
@@ -53,7 +51,6 @@ router.get('/payments/:courseId', (req, res) => {
     });
 });
 
-// Get all payments for a specific student across all courses
 router.get('/student-payments/:studentId', (req, res) => {
     const { studentId } = req.params;
 

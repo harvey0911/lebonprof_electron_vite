@@ -3,15 +3,12 @@ import { db, dbRun, dbQuery } from '../db.js';
 
 const router = express.Router();
 
-// Endpoint to save attendance
 router.post('/saveAttendance', async (req, res) => {
     try {
         const attendanceData = req.body;
 
-        // Prepare the SQL statement
         const insertAttendanceQuery = `INSERT INTO Attendance (studentId, courseId, date, status) VALUES (?, ?, ?, ?)`;
 
-        // Run the insert operation for each attendance record asynchronously
         for (const record of attendanceData) {
             await dbRun(insertAttendanceQuery, [
                 record.studentId,
@@ -33,7 +30,6 @@ router.get('/fetchAttendanceData/:courseId/:date', async (req, res) => {
         const courseId = req.params.courseId;
         const date = req.params.date;
 
-        // Prepare the SQL statement to fetch students and their attendance status for the given course and date
         const fetchAttendanceQuery = `
                 SELECT 
                     s.UserID,
@@ -48,21 +44,9 @@ router.get('/fetchAttendanceData/:courseId/:date', async (req, res) => {
                 WHERE 
                     e.courseId = ?
             `;
-        // NOTE: The original code had `FROM Students s`. But there is no `Students` table in Schema (it is `Users` with UserType='Student'). 
-        // Table creation has `Users`. `Enrollments` foreign key references `Users(UserID)`.
-        // Line 668 in original Server.js says `FROM Students s`.
-        // BUT `createTables` function (Line 18-47) creates `Users`. It does NOT create `Students`.
-        // This implies the original code might have been using a view or it was broken/inconsistent if `Students` table doesn't exist.
-        // However, I see `fetchstudents` route using `Users`.
-        // I will assume `Students` in query 668 was a typo in original or `Users` is correct. 
-        // I will use `Users` and add `WHERE s.UserType = 'Student'` if necessary, or rely on Enrollments.
-        // Actually, looking at `fetch_Students_not_enrolled`, it uses `Users`.
-        // I'll change `Students s` to `Users s`.
 
-        // Execute the SQL query to fetch students and their attendance status
         const attendanceData = await dbQuery(fetchAttendanceQuery, [date, courseId]);
 
-        // Send the fetched attendance data as a response
         res.status(200).json(attendanceData);
     } catch (error) {
         console.error('Error fetching attendance data:', error);
@@ -78,7 +62,6 @@ router.get('/fetchStudentsStatus/:courseId', async (req, res) => {
     console.log('Received date:', date);
 
     try {
-        // Query to check if there are any attendance records for the given date
         const attendanceQuery = `
                 SELECT *
                 FROM Attendance
@@ -89,7 +72,6 @@ router.get('/fetchStudentsStatus/:courseId', async (req, res) => {
         let studentsWithAttendanceStatus;
 
         if (attendanceRecords.length === 0) {
-            // If no attendance records found, fetch all enrolled students with absent status
             const allStudentsQuery = `
                     SELECT Users.UserID, Users.UserName, 'Absent' as Status
                     FROM Users
@@ -99,7 +81,6 @@ router.get('/fetchStudentsStatus/:courseId', async (req, res) => {
             studentsWithAttendanceStatus = await dbQuery(allStudentsQuery, [courseId]);
             console.log('Students with attendance status in case of empty attendance records:', studentsWithAttendanceStatus);
         } else {
-            // If attendance records found, fetch students with their attendance status
             const studentsQuery = `
                     SELECT Users.UserID, Users.UserName, Attendance.Status
                     FROM Users
@@ -117,7 +98,6 @@ router.get('/fetchStudentsStatus/:courseId', async (req, res) => {
     }
 });
 
-// Get all 'Present' attendance records for a specific student across all courses
 router.get('/student-attendance/:studentId', (req, res) => {
     const { studentId } = req.params;
 

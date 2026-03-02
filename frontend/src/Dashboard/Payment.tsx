@@ -45,12 +45,10 @@ function Payment() {
     const [payments, setPayments] = useState<PaymentRecord[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Modal State
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-    // Form State
     const [amount, setAmount] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [notes, setNotes] = useState('');
@@ -100,14 +98,11 @@ function Payment() {
 
         setIsSubmitting(true);
         try {
-            // Generate PDF Receipt
             const doc = new jsPDF();
-            // Add Logo
             const img = new Image();
             img.src = LeBonProfLogo;
             doc.addImage(img, 'PNG', 15, 15, 20, 20);
 
-            // Header
             doc.setFontSize(22);
             doc.setFont('helvetica', 'bold');
             doc.text(t('receipt_pdf'), 105, 25, { align: 'center' });
@@ -120,7 +115,6 @@ function Payment() {
             doc.setDrawColor(200, 200, 200);
             doc.line(15, 45, 195, 45);
 
-            // Receipt Details
             doc.setFontSize(12);
             doc.text(`${t('student_label')}: ${selectedStudent.UserName}`, 20, 60);
             doc.text(`${t('student_id')}: #${selectedStudent.UserID}`, 20, 70);
@@ -167,7 +161,6 @@ function Payment() {
             return;
         }
 
-        // 1. Re-generate PDF for download
         const doc = new jsPDF();
         const img = new Image();
         img.src = LeBonProfLogo;
@@ -204,7 +197,6 @@ function Payment() {
         doc.setFontSize(10);
         doc.text(t('thank_you_payment'), 105, 140, { align: 'center' });
 
-        // Save locally
         doc.save(`Receipt_${selectedStudent.UserName}_${payment.PaymentDate}.pdf`);
     };
 
@@ -223,7 +215,6 @@ function Payment() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans relative">
-            {/* Consistent Top Navigation */}
             <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center justify-between gap-8">
@@ -263,7 +254,6 @@ function Payment() {
             </nav>
 
             <main className="container mx-auto p-6 md:p-10 max-w-7xl">
-                {/* Header Section */}
                 <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-12 mb-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
 
@@ -277,7 +267,6 @@ function Payment() {
                     </div>
                 </div>
 
-                {/* Payment Table */}
                 <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
@@ -332,7 +321,6 @@ function Payment() {
                 </div>
             </main>
 
-            {/* Payment Modal */}
             {isPaymentModalOpen && selectedStudent && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -393,7 +381,6 @@ function Payment() {
                 </div>
             )}
 
-            {/* History Modal */}
             {isHistoryModalOpen && selectedStudent && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">

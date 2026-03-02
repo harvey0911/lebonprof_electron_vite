@@ -27,7 +27,7 @@ function App() {
 
         <Route path='/' element={<LandingPage />} />
 
-        {/* Management Routes wrapped in ManagementLayout */}
+
         <Route element={<ManagementLayout><Outlet /></ManagementLayout>}>
           <Route path='/Dashboard' element={<Dashboard />} />
           <Route path='/Students' element={<Student />} />
@@ -36,7 +36,7 @@ function App() {
           <Route path='/Settings' element={<Settings />} />
         </Route>
 
-        {/* Course-specific routes kept separate as per user requirement */}
+
         <Route path='/course/:courseId' element={<CourseInformation />} />
         <Route path='/attendance/:courseId' element={<Attendance />} />
         <Route path='/payment/:courseId' element={<Payment />} />

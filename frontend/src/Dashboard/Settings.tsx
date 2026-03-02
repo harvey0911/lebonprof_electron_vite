@@ -100,7 +100,6 @@ const Settings: React.FC = () => {
 
     return (
         <main className="p-10 min-w-0">
-            {/* Header Section */}
             <div className="mb-12">
                 <h1 className="text-4xl font-black text-slate-900 tracking-tight">{t('dashboard')}</h1>
                 <div className="flex items-center gap-2 mt-4 text-slate-600">
@@ -109,7 +108,6 @@ const Settings: React.FC = () => {
                 </div>
             </div>
 
-            {/* Status Notification */}
             {status.message && (
                 <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 border animate-in slide-in-from-top-4 duration-300 ${status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-red-50 border-red-100 text-red-800'
                     }`}>
@@ -120,7 +118,6 @@ const Settings: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl">
 
-                {/* Security Card */}
                 <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col h-full">
                     <div className="flex items-center gap-3 mb-4">
                         <Shield className="w-5 h-5 text-indigo-600" />
@@ -177,7 +174,6 @@ const Settings: React.FC = () => {
                     </form>
                 </div>
 
-                {/* Maintenance Card */}
                 <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-red-50 flex flex-col h-full border-l-8 border-l-red-500">
                     <div className="flex items-center gap-3 mb-4">
                         <Database className="w-5 h-5 text-red-500" />
@@ -218,7 +214,6 @@ const Settings: React.FC = () => {
                     </form>
                 </div>
 
-                {/* Language Selection Card */}
                 <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 lg:col-span-2">
                     <div className="flex items-center gap-3 mb-4">
                         <Globe className="w-5 h-5 text-emerald-500" />
@@ -255,7 +250,6 @@ const Settings: React.FC = () => {
 
             </div>
 
-            {/* Footer */}
             <div className="mt-12 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-4">
                 <span>Le Bon Prof v1.2</span>
                 <span className="w-1 h-1 bg-slate-300 rounded-full"></span>

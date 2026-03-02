@@ -18,29 +18,22 @@ router.get('/fetchCourses', (req, res) => {
 });
 
 router.post('/addcourse', (req, res) => {
-    // Extracting CourseName and ProfessorID from the request body
     const { CourseName, ProfessorID } = req.body;
 
-    // Validate the input
     if (!CourseName || !ProfessorID) {
         return res.status(400).send('Missing course details');
     }
 
-    // Prepare your SQL query to insert a new course
     const courseQuery = `INSERT INTO Courses (CourseName, ProfessorID) VALUES (?, ?)`;
 
-    // Execute the query against your database
     db.run(courseQuery, [CourseName, ProfessorID], function (err) {
         if (err) {
-            // If an error occurs, log it and return a 500 error to the client
             console.error('Error adding course', err);
             return res.status(500).send('An error occurred while adding the course');
         }
 
-        // If the query was successful, use 'this.lastID' to get the ID of the newly inserted course
         console.log(`A course has been added with CourseID ${this.lastID}`);
 
-        // Return the CourseID of the newly created course to the client
         res.status(201).send({ CourseID: this.lastID });
     });
 });
@@ -61,7 +54,6 @@ router.delete('/deletecourse/:CourseID', (req, res) => {
     });
 });
 
-// Endpoint to update a course
 router.put('/updatecourse/:CourseID', (req, res) => {
     const { CourseID } = req.params;
     const { CourseName } = req.body;

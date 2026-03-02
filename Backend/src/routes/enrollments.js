@@ -12,7 +12,6 @@ router.post('/enrollstudent', async (req, res) => {
 
     const enrollmentQuery = `INSERT INTO Enrollments (StudentID, CourseID) VALUES (?, ?)`;
 
-    // Using a transaction to ensure all students are enrolled
     db.serialize(() => {
         db.run("BEGIN TRANSACTION");
 
@@ -20,7 +19,6 @@ router.post('/enrollstudent', async (req, res) => {
             db.run(enrollmentQuery, [studentId, courseId], function (err) {
                 if (err) {
                     console.error('Error enrolling student', err);
-                    // If there's an error, respond and rollback the transaction
                     db.run("ROLLBACK");
                     return res.status(500).send('An error occurred while enrolling the students');
                 }
@@ -39,17 +37,14 @@ router.post('/enrollstudent', async (req, res) => {
     });
 });
 
-// Updated route to remove a student from a course
 router.put('/remove_from_course', async (req, res) => {
     const { UserID, CourseID } = req.body;
 
     try {
-        // Validate input
         if (!UserID || !CourseID) {
             return res.status(400).json({ error: 'Both UserID and CourseID are required in the request body' });
         }
 
-        // Execute SQL query to remove the student from the course
         const query = `DELETE FROM Enrollments WHERE StudentID = ? AND CourseID = ?`;
 
         db.run(query, [UserID, CourseID], function (err) {

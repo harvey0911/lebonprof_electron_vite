@@ -3,7 +3,6 @@ import { db, dbRun } from '../db.js';
 
 const router = express.Router();
 
-// Endpoint to add a task
 router.post('/addtask', (req, res) => {
     const { Description } = req.body;
 
@@ -11,7 +10,6 @@ router.post('/addtask', (req, res) => {
         return res.status(400).send('Missing description');
     }
 
-    // Status defaults to 0 and CreatedAt defaults to CURRENT_TIMESTAMP in DB schema
     const query = `INSERT INTO Tasks (Description) VALUES (?)`;
 
     db.run(query, [Description], function (err) {
@@ -53,7 +51,6 @@ router.put('/updatetask/:taskId', (req, res) => {
     });
 });
 
-// Endpoint to delete a task
 router.delete('/deletetask/:taskId', (req, res) => {
     const { taskId } = req.params;
     console.log("Delete request received for ID:", taskId);

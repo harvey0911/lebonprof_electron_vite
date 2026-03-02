@@ -4,7 +4,6 @@ import { db, dbQuery, dbRun } from '../db.js';
 
 const router = express.Router();
 
-// Login endpoint (Password only)
 router.post('/login', async (req, res) => {
     const { password } = req.body;
 
@@ -36,7 +35,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Change password endpoint
 router.post('/change-password', async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
@@ -67,7 +65,6 @@ router.post('/change-password', async (req, res) => {
     }
 });
 
-// Clear data endpoint
 router.post('/clear-data', async (req, res) => {
     const { password } = req.body;
 
@@ -88,12 +85,10 @@ router.post('/clear-data', async (req, res) => {
             return res.status(401).json({ error: 'Invalid password' });
         }
 
-        // Tables to clear (exclude Admins)
         const tables = ['Attendance', 'Payments', 'Sessions', 'Enrollments', 'Courses', 'Users', 'Tasks'];
 
         for (const table of tables) {
             await dbRun(`DELETE FROM ${table}`);
-            // Reset autoincrement
             await dbRun(`DELETE FROM sqlite_sequence WHERE name = ?`, [table]);
         }
 

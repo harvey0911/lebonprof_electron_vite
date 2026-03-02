@@ -67,12 +67,10 @@ router.get('/fetchprofessors', (req, res) => {
     });
 });
 
-// Endpoint to fetch students not enrolled in a specific course
 router.get('/fetch_Students_not_enrolled/:courseId', (req, res) => {
     const courseId = req.params.courseId;
 
     try {
-        // Use SQL query to fetch students not enrolled in the specified course
         const query = `
                 SELECT Users.*
                 FROM Users
@@ -80,7 +78,6 @@ router.get('/fetch_Students_not_enrolled/:courseId', (req, res) => {
                 WHERE Enrollments.CourseID IS NULL AND Users.UserType = 'Student'
             `;
 
-        // Execute the query
         db.all(query, [courseId], (err, students) => {
             if (err) {
                 console.error('Error fetching students not enrolled:', err);
@@ -95,7 +92,6 @@ router.get('/fetch_Students_not_enrolled/:courseId', (req, res) => {
     }
 });
 
-// Endpoint to fetch full student profile
 router.get('/student-profile/:studentId', (req, res) => {
     const studentId = req.params.studentId;
 
@@ -125,7 +121,6 @@ router.get('/student-profile/:studentId', (req, res) => {
                 return res.status(500).json({ error: 'Internal Server Error' });
             }
 
-            // Calculate aggregate stats
             const totalpaid = courses.reduce((sum, c) => sum + (c.TotalPaid || 0), 0);
 
             res.json({

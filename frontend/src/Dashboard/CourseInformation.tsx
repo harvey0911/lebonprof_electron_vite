@@ -123,11 +123,9 @@ function CourseInformation() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
-            {/* Top Navigation Bar */}
             <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm">
                 <div className="container mx-auto px-6 py-4">
                     <div className="flex items-center justify-between gap-8">
-                        {/* Logo / Brand */}
                         <div onClick={() => navigate('/Dashboard')} className="flex items-center gap-3 cursor-pointer group">
                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform p-1.5">
                                 <img src={LeBonProfLogo} alt="LeBonProf Logo" className="w-full h-full object-contain" />
@@ -135,7 +133,6 @@ function CourseInformation() {
                             <span className="text-xl font-black text-slate-900 tracking-tight">LeBonProf</span>
                         </div>
 
-                        {/* Navigation Links */}
                         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                             {navItems.map((item) => (
                                 <button
@@ -154,7 +151,6 @@ function CourseInformation() {
                             ))}
                         </div>
 
-                        {/* Search Bar */}
                         <div className="hidden md:block relative w-64">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                             <input
@@ -168,7 +164,6 @@ function CourseInformation() {
             </nav>
 
             <main className="container mx-auto p-6 md:p-10 max-w-7xl">
-                {/* Header Card */}
                 <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 md:p-12 mb-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
 
@@ -223,9 +218,7 @@ function CourseInformation() {
                     </div>
                 </div>
 
-                {/* Content Area */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Student List */}
                     <div className="lg:col-span-3">
                         <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8">
                             <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
@@ -277,7 +270,6 @@ function CourseInformation() {
                 </div>
             </main>
 
-            {/* Add Student Modal */}
             {showForm && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl p-8 animate-in zoom-in duration-300">

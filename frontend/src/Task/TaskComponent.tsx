@@ -89,7 +89,6 @@ function TaskComponent() {
 
     return (
         <main className="p-10 min-w-0">
-            {/* Header Section */}
             <div className="flex flex-wrap justify-between items-center mb-8 gap-6 max-w-7xl mx-auto">
                 <div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight">{t('checklist')}</h1>
@@ -129,7 +128,6 @@ function TaskComponent() {
                 </div>
             </div>
 
-            {/* List View Table */}
             <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead>
@@ -193,7 +191,6 @@ function TaskComponent() {
                 </table>
             </div>
 
-            {/* Create Task Modal */}
             {showForm && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 border border-slate-200">
@@ -221,7 +218,6 @@ function TaskComponent() {
                 </div>
             )}
 
-            {/* Delete Confirmation Modal */}
             {showDeleteModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 text-center border border-slate-200">

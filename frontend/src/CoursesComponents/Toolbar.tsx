@@ -10,7 +10,6 @@ const Toolbar = ({ onToolChange }: ToolbarProps) => {
       <Button onClick={() => onToolChange('pen')}>Pen</Button>
       <Button onClick={() => onToolChange('eraser')}>Eraser</Button>
       <Button onClick={() => onToolChange('text')}>Text</Button>
-      {/* Add buttons for other tools */}
     </div>
   );
 };

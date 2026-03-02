@@ -46,7 +46,6 @@ const SessionCard = ({ courseId, SessionID, Title: initialTitle, Description: in
         try {
             await axiosapi.delete(`/deleteSession/${encodeURIComponent(title)}`);
             setShowDeleteModal(false);
-            // For now, the user can refresh or we can assume it works as before.
             window.location.reload();
         } catch (error) {
             console.error('Error deleting session', error);

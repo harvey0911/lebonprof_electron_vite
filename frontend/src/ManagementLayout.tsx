@@ -23,7 +23,6 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
         <div className={`min-h-screen bg-slate-50 flex flex-col lg:flex-row ${isRTL ? 'flex-row-reverse' : ''}`} dir={i18n.dir()}>
             <SideBar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
-            {/* Mobile Header */}
             <div className="lg:hidden bg-[#001529] text-white p-4 flex items-center justify-between sticky top-0 z-40 shadow-md w-full">
                 <div className="flex items-center gap-3">
                     <span className="text-xl font-black tracking-tight">LeBonProf</span>
@@ -37,7 +36,6 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
                 </button>
             </div>
 
-            {/* Main Content Area */}
             <div className={`flex-1 flex flex-col min-h-screen overflow-x-hidden ${isRTL ? 'lg:mr-64 lg:ml-0' : 'lg:ml-64 lg:mr-0'}`}>
                 {children}
             </div>

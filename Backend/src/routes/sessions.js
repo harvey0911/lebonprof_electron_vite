@@ -3,12 +3,10 @@ import { db, dbQuery, dbRun } from '../db.js';
 
 const router = express.Router();
 
-// Endpoint to fetch sessions for a specific course
 router.get('/fetchSessions/:courseId', async (req, res) => {
     const { courseId } = req.params;
 
     try {
-        // Fetch sessions based on the courseId
         const query = `SELECT * FROM Sessions WHERE CourseID = ?`;
         const sessions = await dbQuery(query, [courseId]);
 
@@ -19,16 +17,13 @@ router.get('/fetchSessions/:courseId', async (req, res) => {
     }
 });
 
-// Endpoint to add a new session
 router.post('/addSession', async (req, res) => {
     const { courseId, title, description } = req.body;
 
     try {
-        // Insert a new session into the Sessions table
         const query = `INSERT INTO Sessions (CourseID, Title, Description) VALUES (?, ?, ?)`;
         const result = await dbRun(query, [courseId, title, description]);
 
-        // Return the newly created session
         res.status(201).json({ sessionId: result.lastID });
     } catch (error) {
         console.error('Error adding session', error);
@@ -65,7 +60,6 @@ router.put('/updateSessionTitle/:courseId', (req, res) => {
             console.error('Error updating session title', err);
             res.status(500).send('An error occurred while updating the session title');
         } else if (this.changes === 0) {
-            // If no rows were affected, it means oldTitle does not match with the current title
             res.status(404).send('Session not found or old title does not match');
         } else {
             console.log(`Session with CourseID ${courseId} has been updated`);

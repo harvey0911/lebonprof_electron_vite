@@ -66,7 +66,6 @@ function StudentInfo() {
 
             const doc = new jsPDF();
 
-            // Header Section
             doc.setFontSize(24);
             doc.setTextColor(37, 99, 235); // Blue
             doc.setFont('helvetica', 'bold');
@@ -116,7 +115,6 @@ function StudentInfo() {
 
             const doc = new jsPDF();
 
-            // Header Section
             doc.setFontSize(24);
             doc.setTextColor(37, 99, 235); // Blue
             doc.setFont('helvetica', 'bold');
@@ -163,7 +161,6 @@ function StudentInfo() {
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans print:bg-white">
-            {/* Navigation - Hidden on Print */}
             <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm print:hidden">
                 <div className="w-full px-6 py-4">
                     <div className="flex items-center justify-between">
@@ -192,7 +189,6 @@ function StudentInfo() {
             </nav>
 
             <main className="w-full p-6 md:p-10">
-                {/* Profile Header */}
                 <div className="bg-white rounded-[2.5rem] p-8 md:p-12 mb-8 shadow-sm border border-slate-100 relative overflow-hidden print:shadow-none print:border-none print:p-0 print:mb-8">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50 print:hidden"></div>
 
@@ -221,7 +217,6 @@ function StudentInfo() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 print:block">
-                    {/* Courses List */}
                     <div>
                         <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
                             <BookOpen className="w-6 h-6 text-blue-600" /> {t('enrolled_courses')}
@@ -237,7 +232,6 @@ function StudentInfo() {
                                         </div>
 
                                         <div className="flex flex-wrap gap-8">
-                                            {/* Attendance Stats */}
                                             <div className="min-w-[140px]">
                                                 <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
                                                     <Calendar className="w-3.5 h-3.5" /> {t('attendance')}
@@ -260,7 +254,6 @@ function StudentInfo() {
                                                 </div>
                                             </div>
 
-                                            {/* Payment Stats */}
                                             <div className="min-w-[140px]">
                                                 <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2 flex items-center gap-1.5">
                                                     <DollarSign className="w-3.5 h-3.5" /> {t('payment')}
@@ -287,7 +280,6 @@ function StudentInfo() {
                     </div>
                 </div>
 
-                {/* Print Footer */}
                 <div className="hidden print:block mt-12 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
                     <p>{t('generated_on')} {new Date().toLocaleDateString()}</p>
                 </div>

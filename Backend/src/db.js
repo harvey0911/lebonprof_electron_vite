@@ -10,7 +10,6 @@ const dbPath = process.env.DB_PATH || path.join(dbFolder, 'lebonprof.db');
 console.log('Using database at:', dbPath);
 const db = new sqlite3.Database(dbPath);
 
-// Function to create tables
 async function createTables() {
     const run = (sql, params = []) => new Promise((resolve, reject) => {
         db.run(sql, params, (err) => err ? reject(err) : resolve());
@@ -21,7 +20,6 @@ async function createTables() {
     });
 
     try {
-        // Create the Admins table
         await run(`CREATE TABLE IF NOT EXISTS Admins (
             AdminID INTEGER PRIMARY KEY AUTOINCREMENT,
             UserName TEXT NOT NULL,
@@ -29,7 +27,6 @@ async function createTables() {
         )`);
         console.log('Admins table checked');
 
-        // Check if admin exists
         const row = await get("SELECT COUNT(*) as count FROM Admins");
         if (row.count === 0) {
             const hashedPassword = await bcrypt.hash('admin', 10);
@@ -37,7 +34,6 @@ async function createTables() {
             console.log('Default admin created');
         }
 
-        // Create the Users table
         await run(`CREATE TABLE IF NOT EXISTS Users (
             UserID INTEGER PRIMARY KEY AUTOINCREMENT,
             UserName TEXT NOT NULL,
@@ -45,7 +41,6 @@ async function createTables() {
             PhoneNumber TEXT
         )`);
 
-        // Create the Courses table
         await run(`CREATE TABLE IF NOT EXISTS Courses (
             CourseID INTEGER PRIMARY KEY AUTOINCREMENT,
             CourseName TEXT NOT NULL,
@@ -53,7 +48,6 @@ async function createTables() {
             FOREIGN KEY (ProfessorID) REFERENCES Users(UserID) ON DELETE SET NULL
         )`);
 
-        // Create the Enrollments table
         await run(`CREATE TABLE IF NOT EXISTS Enrollments (
             EnrollmentID INTEGER PRIMARY KEY AUTOINCREMENT,
             StudentID INTEGER NOT NULL,
@@ -62,7 +56,6 @@ async function createTables() {
             FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
         )`);
 
-        // Create the Tasks table
         await run(`CREATE TABLE IF NOT EXISTS Tasks (
             TaskID INTEGER PRIMARY KEY AUTOINCREMENT,
             Description TEXT NOT NULL,
@@ -70,7 +63,6 @@ async function createTables() {
             CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )`);
 
-        // Create the Sessions table
         await run(`CREATE TABLE IF NOT EXISTS Sessions (
             SessionID INTEGER PRIMARY KEY AUTOINCREMENT,
             CourseID INTEGER,
@@ -80,7 +72,6 @@ async function createTables() {
             FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
         )`);
 
-        // Migrate Sessions if needed
         const columns = await new Promise((resolve) => db.all("PRAGMA table_info(Sessions)", (err, rows) => resolve(rows || [])));
         const hasWhiteboard = columns.some(row => row.name === 'WhiteboardContent');
         const hasDescription = columns.some(row => row.name === 'Description');
@@ -89,7 +80,6 @@ async function createTables() {
             console.log('Sessions table migrated');
         }
 
-        // Create the Attendance table
         await run(`CREATE TABLE IF NOT EXISTS Attendance (
             AttendanceID INTEGER PRIMARY KEY AUTOINCREMENT,
             CourseID INTEGER NOT NULL,
@@ -100,7 +90,6 @@ async function createTables() {
             FOREIGN KEY (StudentID) REFERENCES Users(UserID)
         )`);
 
-        // Create the Payments table
         await run(`CREATE TABLE IF NOT EXISTS Payments (
             PaymentID INTEGER PRIMARY KEY AUTOINCREMENT,
             CourseID INTEGER NOT NULL,
@@ -113,11 +102,9 @@ async function createTables() {
             FOREIGN KEY (StudentID) REFERENCES Users(UserID)
         )`);
 
-        // Migration to add ReceiptPDF column
         try {
             await run(`ALTER TABLE Payments ADD COLUMN ReceiptPDF TEXT`);
         } catch (e) {
-            // Likely already exists
         }
 
         console.log('All tables verified/created');
@@ -126,7 +113,6 @@ async function createTables() {
     }
 }
 
-// Helper function for database query with promise (SELECT/all)
 const dbQuery = (query, params) => {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, result) => {
@@ -136,7 +122,6 @@ const dbQuery = (query, params) => {
     });
 };
 
-// Helper function for database run with promise (INSERT/UPDATE/DELETE)
 const dbRun = (query, params) => {
     return new Promise((resolve, reject) => {
         db.run(query, params, function (err) {
@@ -146,7 +131,6 @@ const dbRun = (query, params) => {
     });
 };
 
-// Start initialization
 const dbReady = createTables();
 
 export { db, dbQuery, dbRun, dbReady };

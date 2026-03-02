@@ -87,7 +87,6 @@ function LandingPage() {
               </div>
             )}
             <div className="space-y-4">
-              {/* Password field */}
               <div className="relative group">
                 <input
                   required

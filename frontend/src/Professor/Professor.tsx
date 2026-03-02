@@ -66,7 +66,6 @@ function Professor() {
 
     return (
         <main className="p-10 min-w-0">
-            {/* Header Section */}
             <div className="flex flex-wrap justify-between items-center mb-12 gap-6">
                 <div>
                     <h1 className="text-4xl font-black text-slate-900 tracking-tight">{t('professors')}</h1>
@@ -94,7 +93,6 @@ function Professor() {
                 </div>
             </div>
 
-            {/* List View Container */}
             <div className="space-y-4 max-w-5xl">
                 {filteredProfessors.map((prof) => (
                     <div key={prof.UserID} className="bg-white p-4 px-8 rounded-3xl shadow-sm border border-slate-100 hover:border-blue-200 transition-all group flex items-center justify-between">
