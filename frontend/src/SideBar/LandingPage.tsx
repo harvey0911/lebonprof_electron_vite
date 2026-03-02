@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import LeBonProfLogo from './LeBonProf.png';
 import axiosapi from '../api';
+import { useTranslation } from 'react-i18next';
 
 function LandingPage() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
@@ -28,7 +30,7 @@ function LandingPage() {
         navigate('/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Invalid password or server error');
+      setError(err.response?.data?.error || t('invalid_password_err'));
     } finally {
       setLoading(false);
     }
@@ -59,7 +61,7 @@ function LandingPage() {
         </div>
 
         <div className="relative z-10 text-white/40 text-[10px] uppercase tracking-[0.3em] text-center font-bold">
-          Excellence & Education
+          {t('excellence_education')}
         </div>
       </div>
 
@@ -74,8 +76,8 @@ function LandingPage() {
 
         <div className="w-full max-w-sm space-y-8">
           <div className="text-left border-l-4 border-blue-600 pl-6">
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Log in</h2>
-            <p className="text-slate-400 text-sm mt-1 font-medium italic">Welcome back to the portal</p>
+            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">{t('login')}</h2>
+            <p className="text-slate-400 text-sm mt-1 font-medium italic">{t('welcome_back')}</p>
           </div>
 
           <form noValidate onSubmit={handleLogin} className="space-y-5">
@@ -90,7 +92,7 @@ function LandingPage() {
                 <input
                   required
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Password"
+                  placeholder={t('password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-slate-900 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 focus:bg-white transition-all shadow-sm"
@@ -108,9 +110,9 @@ function LandingPage() {
             <div className="flex items-center justify-between px-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               <label className="flex items-center cursor-pointer hover:text-blue-600 transition-colors">
                 <input type="checkbox" className="mr-2 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                Stay logged in
+                {t('stay_logged_in')}
               </label>
-              <button type="button" className="hover:text-blue-600 transition-colors">Forgot Password?</button>
+              <button type="button" className="hover:text-blue-600 transition-colors">{t('forgot_password')}</button>
             </div>
 
             <div className="pt-4">
@@ -118,12 +120,12 @@ function LandingPage() {
                 type="submit"
                 className="w-full py-4 px-6 rounded-2xl text-white bg-blue-600 font-extrabold text-sm uppercase tracking-widest hover:bg-slate-900 hover:shadow-xl hover:shadow-blue-200 transition-all active:scale-[0.98]"
               >
-                Enter Portal
+                {t('enter_portal')}
               </button>
 
               <div className="mt-8 text-center">
                 <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">
-                  No account? <span className="text-blue-600 cursor-pointer hover:underline">Request Access</span>
+                  {t('no_account')} <span className="text-blue-600 cursor-pointer hover:underline">{t('request_access')}</span>
                 </p>
               </div>
             </div>

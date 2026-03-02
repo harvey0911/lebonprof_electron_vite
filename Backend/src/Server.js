@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { db } from './db.js'; // Importing db triggers table creation
+import { db, dbReady } from './db.js';
 import authRoutes from './routes/auth.js';
 import taskRoutes from './routes/tasks.js';
 import userRoutes from './routes/users.js';
@@ -15,11 +15,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
-// Middleware to parse JSON
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }))
 app.use(express.json({ limit: '50mb' }));
 
-// Routes
 app.use('/', authRoutes);
 app.use('/', taskRoutes);
 app.use('/', userRoutes);
@@ -29,5 +27,9 @@ app.use('/', sessionRoutes);
 app.use('/', attendanceRoutes);
 app.use('/', paymentRoutes);
 
-// Start the server
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+dbReady.then(() => {
+    app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+}).catch(err => {
+    console.error('Failed to initialize database:', err);
+    process.exit(1);
+});

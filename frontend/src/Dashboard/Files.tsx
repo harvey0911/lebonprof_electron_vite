@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import SessionCard from './SessionCard';
 import LeBonProfLogo from '../SideBar/LeBonProf.png';
+import { useTranslation } from 'react-i18next';
 
 interface Session {
   SessionID: number;
@@ -22,6 +23,7 @@ interface Session {
 }
 
 function Files() {
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<Session[]>([]);
   const { courseId } = useParams();
   const [newSessionTitle, setNewSessionTitle] = useState('');
@@ -29,7 +31,7 @@ function Files() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showModal, setShowModal] = useState(false);
-  const [courseName, setCourseName] = useState('Course Materials');
+  const [courseName, setCourseName] = useState('');
 
   useEffect(() => {
     const fetchSessions = async () => {
@@ -52,10 +54,10 @@ function Files() {
   }, [courseId]);
 
   const navItems = [
-    { label: 'Course Info', icon: BookOpen, path: `/course/${courseId}` },
-    { label: 'Attendance', icon: ClipboardCheck, path: `/attendance/${courseId}` },
-    { label: 'Files', icon: FileText, path: `/files/${courseId}` },
-    { label: 'Payment', icon: CreditCard, path: `/payment/${courseId}` },
+    { label: t('course_info'), icon: BookOpen, path: `/course/${courseId}` },
+    { label: t('attendance'), icon: ClipboardCheck, path: `/attendance/${courseId}` },
+    { label: t('files'), icon: FileText, path: `/files/${courseId}` },
+    { label: t('payment'), icon: CreditCard, path: `/payment/${courseId}` },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -118,7 +120,7 @@ function Files() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search files..."
+                placeholder={t('search_files')}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-xl outline-none text-sm font-bold text-slate-700 transition-all placeholder:text-slate-400"
               />
             </div>
@@ -135,14 +137,14 @@ function Files() {
               <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-2">
                 {courseName}
               </h1>
-              <p className="text-slate-500 font-medium">Session Notes & Interactive Canvas</p>
+              <p className="text-slate-500 font-medium">{t('session_notes_desc')}</p>
             </div>
 
             <button
               onClick={() => setShowModal(true)}
               className="bg-blue-600 hover:bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all shadow-xl shadow-blue-200 active:scale-95 whitespace-nowrap"
             >
-              <Plus className="w-5 h-5" /> New Session
+              <Plus className="w-5 h-5" /> {t('new_session')}
             </button>
           </div>
         </div>
@@ -163,13 +165,13 @@ function Files() {
               <div className="w-20 h-20 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FolderOpen className="w-10 h-10" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">No sessions found</h3>
-              <p className="text-slate-400 font-medium mb-8">Create your first lesson to get started.</p>
+              <h3 className="text-xl font-black text-slate-900 mb-2">{t('no_sessions_found')}</h3>
+              <p className="text-slate-400 font-medium mb-8">{t('create_first_lesson')}</p>
               <button
                 onClick={() => setShowModal(true)}
                 className="text-blue-600 font-bold hover:underline"
               >
-                Create new session
+                {t('create_new_session')}
               </button>
             </div>
           )}
@@ -180,7 +182,7 @@ function Files() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
           <div className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl p-8 animate-in zoom-in duration-300">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-black text-slate-900">New Session</h3>
+              <h3 className="text-2xl font-black text-slate-900">{t('new_session')}</h3>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                 <X className="text-slate-400 w-6 h-6" />
               </button>
@@ -189,23 +191,23 @@ function Files() {
             <div className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Session Title</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{t('session_title')}</label>
                   <input
                     type="text"
                     value={newSessionTitle}
                     onChange={(e) => setNewSessionTitle(e.target.value)}
-                    placeholder="e.g. Chapter 1: Introduction"
+                    placeholder={t('session_placeholder')}
                     className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800"
                     autoFocus
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Brief Description</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{t('brief_description')}</label>
                   <textarea
                     value={newSessionDescription}
                     onChange={(e) => setNewSessionDescription(e.target.value)}
-                    placeholder="What will be covered in this session?"
+                    placeholder={t('session_desc_placeholder')}
                     className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800 min-h-[100px] resize-none"
                   />
                 </div>
@@ -216,13 +218,13 @@ function Files() {
                   onClick={() => setShowModal(false)}
                   className="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl transition"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   onClick={handleAddSession}
                   className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-200 hover:bg-slate-900 transition-all active:scale-95"
                 >
-                  Create
+                  {t('create_session')}
                 </button>
               </div>
             </div>

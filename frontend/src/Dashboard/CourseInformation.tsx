@@ -8,7 +8,6 @@ import {
     Search,
     X,
     Save,
-    LayoutDashboard,
     BookOpen,
     ClipboardCheck,
     FileText,
@@ -18,8 +17,10 @@ import {
 import Professor from '../Professor/Professor';
 import Student from '../Student/Student';
 import LeBonProfLogo from '../SideBar/LeBonProf.png';
+import { useTranslation } from 'react-i18next';
 
 function CourseInformation() {
+    const { t } = useTranslation();
     const [courseTitle, setCourseTitle] = useState('');
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [newCourseTitle, setNewCourseTitle] = useState('');
@@ -112,10 +113,10 @@ function CourseInformation() {
     };
 
     const navItems = [
-        { label: 'Course Info', icon: BookOpen, path: `/course/${courseId}` },
-        { label: 'Attendance', icon: ClipboardCheck, path: `/attendance/${courseId}` },
-        { label: 'Files', icon: FileText, path: `/files/${courseId}` },
-        { label: 'Payment', icon: CreditCard, path: `/payment/${courseId}` },
+        { label: t('course_info'), icon: BookOpen, path: `/course/${courseId}` },
+        { label: t('attendance'), icon: ClipboardCheck, path: `/attendance/${courseId}` },
+        { label: t('files'), icon: FileText, path: `/files/${courseId}` },
+        { label: t('payment'), icon: CreditCard, path: `/payment/${courseId}` },
     ];
 
     const isActive = (path: string) => location.pathname === path;
@@ -158,7 +159,7 @@ function CourseInformation() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                             <input
                                 type="text"
-                                placeholder="Search..."
+                                placeholder={t('search_placeholder')}
                                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-transparent focus:bg-white focus:ring-2 focus:ring-blue-100 rounded-xl outline-none text-sm font-bold text-slate-700 transition-all placeholder:text-slate-400"
                             />
                         </div>
@@ -208,8 +209,8 @@ function CourseInformation() {
                                 <div className="p-2 bg-slate-100 rounded-lg">
                                     <User className="w-4 h-4" />
                                 </div>
-                                <span className="uppercase tracking-wider text-xs font-bold">Professor</span>
-                                <span className="text-slate-900 font-bold">{professor?.UserName || 'Loading...'}</span>
+                                <span className="uppercase tracking-wider text-xs font-bold">{t('professor')}</span>
+                                <span className="text-slate-900 font-bold">{professor?.UserName || '...'}</span>
                             </div>
                         </div>
 
@@ -217,7 +218,7 @@ function CourseInformation() {
                             onClick={() => setShowForm(true)}
                             className="bg-blue-600 hover:bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all shadow-xl shadow-blue-200 active:scale-95"
                         >
-                            <Plus className="w-5 h-5" /> Add Student
+                            <Plus className="w-5 h-5" /> {t('add_student')}
                         </button>
                     </div>
                 </div>
@@ -228,21 +229,21 @@ function CourseInformation() {
                     <div className="lg:col-span-3">
                         <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8">
                             <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                                Enrolled Students
+                                {t('enrolled_students')}
                                 <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-bold">{students.length}</span>
                             </h3>
 
                             {students.length === 0 ? (
                                 <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-                                    <p className="text-slate-400 font-bold">No students enrolled yet.</p>
+                                    <p className="text-slate-400 font-bold">{t('no_enrolled_students')}</p>
                                 </div>
                             ) : (
                                 <div className="overflow-hidden rounded-2xl border border-slate-100">
                                     <table className="w-full text-left">
                                         <thead className="bg-slate-50 border-b border-slate-100">
                                             <tr>
-                                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Student Name</th>
-                                                <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">Actions</th>
+                                                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-400">{t('student_name')}</th>
+                                                <th className="px-6 py-4 text-right text-xs font-black uppercase tracking-widest text-slate-400">{t('actions')}</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
@@ -260,7 +261,7 @@ function CourseInformation() {
                                                         <button
                                                             onClick={() => removeStudent(student.UserID)}
                                                             className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                                            title="Remove from course"
+                                                            title={t('remove_from_course')}
                                                         >
                                                             <Trash2 className="w-5 h-5" />
                                                         </button>
@@ -281,7 +282,7 @@ function CourseInformation() {
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl p-8 animate-in zoom-in duration-300">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-2xl font-black text-slate-900">Enroll Students</h3>
+                            <h3 className="text-2xl font-black text-slate-900">{t('enroll_students')}</h3>
                             <button onClick={() => setShowForm(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                                 <X className="text-slate-400 w-6 h-6" />
                             </button>
@@ -291,7 +292,7 @@ function CourseInformation() {
                             <div className="flex-1 overflow-y-auto min-h-0 pr-2 mb-6 custom-scrollbar">
                                 {students_not_enrolled.length === 0 ? (
                                     <div className="text-center py-8 text-slate-400 font-bold">
-                                        All available students are already enrolled.
+                                        {t('all_students_enrolled')}
                                     </div>
                                 ) : (
                                     <div className="space-y-3">
@@ -329,7 +330,7 @@ function CourseInformation() {
                                     onClick={() => setShowForm(false)}
                                     className="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl transition"
                                 >
-                                    Cancel
+                                    {t('cancel')}
                                 </button>
                                 <button
                                     type="submit"
@@ -341,7 +342,7 @@ function CourseInformation() {
                                             : 'bg-blue-600 hover:bg-slate-900 shadow-blue-200 active:scale-95'}
                                     `}
                                 >
-                                    Enroll Selected
+                                    {t('enroll_selected')}
                                 </button>
                             </div>
                         </form>

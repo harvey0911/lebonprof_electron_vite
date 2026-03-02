@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Professor from '../Professor/Professor';
-import Student from '../Student/Student';
-import SideBar from '../SideBar/SideBar';
 import axiosapi from "../api";
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Edit, Plus, Search, MoreVertical, X, User, GraduationCap } from 'lucide-react';
+import { Trash2, Edit, Plus, Search, MoreVertical, X, GraduationCap } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Course {
     CourseName: string;
@@ -13,6 +12,7 @@ interface Course {
 }
 
 function DashBoard() {
+    const { t } = useTranslation();
     const [showForm, setShowForm] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -20,24 +20,20 @@ function DashBoard() {
     const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
     const [courseToUpdate, setCourseToUpdate] = useState<Course | null>(null);
     const [professors, setProfessors] = useState<Professor[]>([]);
-    const [students, setStudents] = useState<Student[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
     const [newCourse, setNewCourse] = useState<Course>({ CourseName: '', ProfessorID: 0, CourseID: 0 });
     const [courses, setCourses] = useState<Course[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>('');
-    const [studentSearchQuery, setStudentSearchQuery] = useState<string>('');
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [profs, studs, crs] = await Promise.all([
+                const [profs, crs] = await Promise.all([
                     axiosapi.get('/fetchprofessors'),
-                    axiosapi.get('/fetchstudents'),
                     axiosapi.get('/fetchCourses')
                 ]);
                 setProfessors(profs.data);
-                setStudents(studs.data);
                 setCourses(crs.data);
             } catch (error) {
                 console.error('Error fetching data', error);
@@ -47,12 +43,6 @@ function DashBoard() {
     }, []);
 
     const toggleFormDisplay = () => setShowForm(!showForm);
-
-    const handleStudentCheckbox = (studentId: number) => {
-        setSelectedStudents(prev =>
-            prev.includes(studentId) ? prev.filter(id => id !== studentId) : [...prev, studentId]
-        );
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -97,100 +87,96 @@ function DashBoard() {
     };
 
     return (
-        <div className="flex min-h-screen bg-slate-50 font-sans overflow-x-hidden">
-            <SideBar />
-
-            <main className="flex-1 ml-64 p-10 min-w-0">
-                <div className="flex flex-wrap justify-between items-center mb-12 gap-6">
-                    <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Courses</h1>
-                        <p className="text-slate-500 font-medium mt-1">Manage your active classes</p>
-                    </div>
-
-                    <div className="flex gap-4 items-center">
-                        <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                            <input
-                                type="text"
-                                placeholder="Search courses..."
-                                className="pl-11 pr-4 py-3 w-48 md:w-72 border-none bg-white rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-
-                        <button
-                            onClick={toggleFormDisplay}
-                            className="bg-blue-600 hover:bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-100 active:scale-95 whitespace-nowrap"
-                        >
-                            <Plus className="w-5 h-5" /> Add Class
-                        </button>
-                    </div>
+        <main className="p-10 min-w-0">
+            <div className="flex flex-wrap justify-between items-center mb-12 gap-6">
+                <div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">{t('courses')}</h1>
+                    <p className="text-slate-500 font-medium mt-1">{t('manage_classes')}</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {courses.filter(c => c.CourseName.toLowerCase().includes(searchQuery.toLowerCase())).map((course) => (
-                        <div key={course.CourseID} className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative">
-                            <div className="h-32 bg-gradient-to-br from-blue-600 to-blue-800 p-6 flex justify-end items-start relative overflow-hidden">
-                                <div className="absolute top-[-20%] left-[-10%] w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                <div className="flex gap-4 items-center">
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                        <input
+                            type="text"
+                            placeholder={t('search_placeholder')}
+                            className="pl-11 pr-4 py-3 w-48 md:w-72 border-none bg-white rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
 
-                                <div className="relative">
-                                    <button
-                                        onClick={() => setActiveDropdown(activeDropdown === course.CourseID ? null : course.CourseID)}
-                                        className="p-2 hover:bg-white/20 rounded-full text-white transition-colors z-20 relative"
-                                    >
-                                        <MoreVertical className="w-5 h-5" />
-                                    </button>
+                    <button
+                        onClick={toggleFormDisplay}
+                        className="bg-blue-600 hover:bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-100 active:scale-95 whitespace-nowrap"
+                    >
+                        <Plus className="w-5 h-5" /> {t('add_class')}
+                    </button>
+                </div>
+            </div>
 
-                                    {activeDropdown === course.CourseID && (
-                                        <>
-                                            <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)}></div>
-                                            <div className="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-2xl border border-slate-100 z-30 py-2 animate-in fade-in zoom-in duration-150">
-                                                <button
-                                                    onClick={() => { setCourseToUpdate(course); setShowUpdateModal(true); setActiveDropdown(null); }}
-                                                    className="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
-                                                >
-                                                    <Edit className="w-4 h-4 text-blue-500" /> Rename
-                                                </button>
-                                                <button
-                                                    onClick={() => { setCourseToDelete(course); setShowDeleteModal(true); setActiveDropdown(null); }}
-                                                    className="w-full text-left px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 flex items-center gap-3 transition-colors"
-                                                >
-                                                    <Trash2 className="w-4 h-4" /> Delete
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                {courses.filter(c => c.CourseName.toLowerCase().includes(searchQuery.toLowerCase())).map((course) => (
+                    <div key={course.CourseID} className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group relative">
+                        <div className="h-32 bg-gradient-to-br from-blue-600 to-blue-800 p-6 flex justify-end items-start relative overflow-hidden">
+                            <div className="absolute top-[-20%] left-[-10%] w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
 
-                            <div className="p-8">
-                                <h3
-                                    onClick={() => navigate(`/course/${course.CourseID}`)}
-                                    className="text-xl font-black text-slate-900 hover:text-blue-600 cursor-pointer truncate transition-colors leading-tight"
+                            <div className="relative">
+                                <button
+                                    onClick={() => setActiveDropdown(activeDropdown === course.CourseID ? null : course.CourseID)}
+                                    className="p-2 hover:bg-white/20 rounded-full text-white transition-colors z-20 relative"
                                 >
-                                    {course.CourseName}
-                                </h3>
-                                <div className="flex items-center gap-2 mt-3 text-slate-400">
-                                    <GraduationCap className="w-4 h-4" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.15em]">Academic Year 2026</span>
-                                </div>
+                                    <MoreVertical className="w-5 h-5" />
+                                </button>
+
+                                {activeDropdown === course.CourseID && (
+                                    <>
+                                        <div className="fixed inset-0 z-10" onClick={() => setActiveDropdown(null)}></div>
+                                        <div className="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-2xl border border-slate-100 z-30 py-2 animate-in fade-in zoom-in duration-150">
+                                            <button
+                                                onClick={() => { setCourseToUpdate(course); setShowUpdateModal(true); setActiveDropdown(null); }}
+                                                className="w-full text-left px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-3 transition-colors"
+                                            >
+                                                <Edit className="w-4 h-4 text-blue-500" /> {t('rename')}
+                                            </button>
+                                            <button
+                                                onClick={() => { setCourseToDelete(course); setShowDeleteModal(true); setActiveDropdown(null); }}
+                                                className="w-full text-left px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 flex items-center gap-3 transition-colors"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> {t('delete')}
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
-                    ))}
-                </div>
-            </main>
+
+                        <div className="p-8">
+                            <h3
+                                onClick={() => navigate(`/course/${course.CourseID}`)}
+                                className="text-xl font-black text-slate-900 hover:text-blue-600 cursor-pointer truncate transition-colors leading-tight"
+                            >
+                                {course.CourseName}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-3 text-slate-400">
+                                <GraduationCap className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.15em]">{t('academic_year')} 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
 
             {showForm && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl p-8 animate-in zoom-in duration-300">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-2xl font-black text-slate-900">Create New Course</h3>
+                            <h3 className="text-2xl font-black text-slate-900">{t('create_new_course')}</h3>
                             <button onClick={toggleFormDisplay} className="p-2 hover:bg-slate-100 rounded-full transition-colors"><X className="text-slate-400" /></button>
                         </div>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Course Title</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{t('course_title')}</label>
                                 <input
                                     required type="text" className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800"
                                     placeholder="e.g. Advanced Mathematics"
@@ -199,18 +185,18 @@ function DashBoard() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Assigned Professor</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{t('assigned_professor')}</label>
                                 <select
                                     required className="w-full p-4 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none transition-all font-bold text-slate-800 appearance-none"
                                     value={newCourse.ProfessorID}
                                     onChange={(e) => setNewCourse({ ...newCourse, ProfessorID: Number(e.target.value) })}
                                 >
-                                    <option value="">Choose a Professor</option>
+                                    <option value="">{t('choose_professor')}</option>
                                     {professors.map(p => <option key={p.UserID} value={p.UserID}>{p.UserName}</option>)}
                                 </select>
                             </div>
                             <button type="submit" className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-200 hover:bg-slate-900 transition-all active:scale-95">
-                                Add to Dashboard
+                                {t('add_to_dashboard')}
                             </button>
                         </form>
                     </div>
@@ -220,7 +206,7 @@ function DashBoard() {
             {showUpdateModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <div className="bg-white rounded-[2.5rem] w-full max-w-md shadow-2xl p-10 animate-in zoom-in duration-200">
-                        <h3 className="text-2xl font-black text-slate-900 mb-8">Rename Course</h3>
+                        <h3 className="text-2xl font-black text-slate-900 mb-8">{t('rename_course')}</h3>
                         <div className="space-y-6">
                             <input
                                 required type="text" className="w-full p-4 bg-slate-50 border-2 border-blue-500 rounded-2xl outline-none font-bold text-slate-800"
@@ -228,8 +214,8 @@ function DashBoard() {
                                 onChange={(e) => setCourseToUpdate(courseToUpdate ? { ...courseToUpdate, CourseName: e.target.value } : null)}
                             />
                             <div className="flex gap-4">
-                                <button onClick={() => setShowUpdateModal(false)} className="flex-1 py-4 text-slate-400 font-bold hover:text-slate-600">Cancel</button>
-                                <button onClick={handleSaveUpdate} className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-200">Save Changes</button>
+                                <button onClick={() => setShowUpdateModal(false)} className="flex-1 py-4 text-slate-400 font-bold hover:text-slate-600">{t('cancel')}</button>
+                                <button onClick={handleSaveUpdate} className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-200">{t('save_changes')}</button>
                             </div>
                         </div>
                     </div>
@@ -242,16 +228,16 @@ function DashBoard() {
                         <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Trash2 className="w-10 h-10" />
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900 mb-2">Delete Course?</h3>
-                        <p className="text-slate-500 font-medium mb-10">This will permanently remove <span className="text-slate-900 font-bold">"{courseToDelete?.CourseName}"</span>.</p>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">{t('delete_course_q')}</h3>
+                        <p className="text-slate-500 font-medium mb-10">{t('delete_confirm_text')} <span className="text-slate-900 font-bold">"{courseToDelete?.CourseName}"</span>.</p>
                         <div className="flex gap-4">
-                            <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-4 text-slate-400 font-bold hover:text-slate-600">Cancel</button>
-                            <button onClick={handleConfirmDelete} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-red-200 active:scale-95">Delete</button>
+                            <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-4 text-slate-400 font-bold hover:text-slate-600">{t('cancel')}</button>
+                            <button onClick={handleConfirmDelete} className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-red-200 active:scale-95">{t('delete')}</button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </main>
     );
 }
 

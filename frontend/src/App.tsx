@@ -2,7 +2,7 @@
 import './App.css'
 import './SideBar/SideBar'
 import './Dashboard/DashBoard'
-import { HashRouter, Routes, Route } from "react-router-dom"
+import { HashRouter, Routes, Route, Outlet } from "react-router-dom"
 
 import Dashboard from "./Dashboard/DashBoard"
 import Student from "./Student/Student"
@@ -16,6 +16,7 @@ import Files from './Dashboard/Files'
 import LandingPage from './SideBar/LandingPage'
 import StudentInfo from './Student/StudentInfo'
 import Settings from './Dashboard/Settings'
+import ManagementLayout from './ManagementLayout'
 
 
 function App() {
@@ -26,20 +27,21 @@ function App() {
 
         <Route path='/' element={<LandingPage />} />
 
-        <Route path='/Dashboard' element={<Dashboard />} />
-        <Route path='/Students' element={<Student />} />
-        <Route path='/Professors' element={<Professor />} />
-        <Route path='/Tasks' element={<TaskComponent />} />
+        {/* Management Routes wrapped in ManagementLayout */}
+        <Route element={<ManagementLayout><Outlet /></ManagementLayout>}>
+          <Route path='/Dashboard' element={<Dashboard />} />
+          <Route path='/Students' element={<Student />} />
+          <Route path='/Professors' element={<Professor />} />
+          <Route path='/Tasks' element={<TaskComponent />} />
+          <Route path='/Settings' element={<Settings />} />
+        </Route>
 
-
+        {/* Course-specific routes kept separate as per user requirement */}
         <Route path='/course/:courseId' element={<CourseInformation />} />
-
-
         <Route path='/attendance/:courseId' element={<Attendance />} />
         <Route path='/payment/:courseId' element={<Payment />} />
         <Route path='/student/:studentId' element={<StudentInfo />} />
         <Route path='/files/:courseId' element={<Files />} />
-        <Route path='/Settings' element={<Settings />} />
 
       </Routes>
 

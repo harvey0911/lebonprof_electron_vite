@@ -1,23 +1,36 @@
-import React, { useMemo, useState } from 'react';
-import { Trash2, AlertTriangle, CheckCircle2, XCircle, Loader2, ArrowLeft, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import {
+    AlertTriangle,
+    CheckCircle2,
+    XCircle,
+    Loader2,
+    Shield,
+    Settings as SettingsIcon,
+    Database,
+    Globe
+} from 'lucide-react';
 import axios from 'axios';
 import axiosapi from '../api';
+import { useTranslation } from 'react-i18next';
 
 type Status = { type: 'success' | 'error' | ''; message: string };
 
 const Settings: React.FC = () => {
+    const { t, i18n } = useTranslation();
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [clearPassword, setClearPassword] = useState('');
+    const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || 'English');
 
     const [changingPassword, setChangingPassword] = useState(false);
     const [clearingData, setClearingData] = useState(false);
 
     const [status, setStatus] = useState<Status>({ type: '', message: '' });
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        setSelectedLanguage(i18n.language);
+    }, [i18n.language]);
 
     const passwordsMatch = useMemo(
         () => newPassword.length > 0 && newPassword === confirmPassword,
@@ -32,9 +45,8 @@ const Settings: React.FC = () => {
         return fallback;
     };
 
-    const handleChangePassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!passwordsMatch) {
             setStatus({ type: 'error', message: 'New passwords do not match' });
             return;
@@ -56,14 +68,9 @@ const Settings: React.FC = () => {
         }
     };
 
-    const handleClearData = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleClearData = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (
-            !window.confirm(
-                'CRITICAL: This will delete ALL data (students, courses, payments, etc.). This action cannot be undone. Are you absolutely sure?'
-            )
-        ) {
+        if (!window.confirm('CRITICAL: This will delete ALL data (students, courses, payments, etc.). This action cannot be undone. Are you absolutely sure?')) {
             return;
         }
 
@@ -81,147 +88,180 @@ const Settings: React.FC = () => {
         }
     };
 
-    const StatusIcon =
-        status.type === 'success' ? CheckCircle2 : status.type === 'error' ? XCircle : null;
+    const languages = [
+        { name: 'English', code: 'English', flag: '🇺🇸' },
+        { name: 'French', code: 'French', flag: '🇫🇷' },
+        { name: 'Arabic', code: 'Arabic', flag: '🇸🇦' }
+    ];
+
+    const changeLanguage = (langCode: string) => {
+        i18n.changeLanguage(langCode);
+    };
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 md:p-8">
-            <div className="max-w-2xl mx-auto space-y-6">
-                <div className="flex items-center justify-between">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="flex items-center gap-2 text-slate-600 hover:text-blue-600 font-medium transition-colors"
-                    >
-                        <ArrowLeft size={18} />
-                        Back to Dashboard
-                    </button>
-                    <h1 className="text-xl font-bold">Settings</h1>
+        <main className="p-10 min-w-0">
+            {/* Header Section */}
+            <div className="mb-12">
+                <h1 className="text-4xl font-black text-slate-900 tracking-tight">{t('dashboard')}</h1>
+                <div className="flex items-center gap-2 mt-4 text-slate-600">
+                    <SettingsIcon className="w-6 h-6 text-indigo-600" />
+                    <h2 className="text-2xl font-bold">{t('system_settings')}</h2>
                 </div>
+            </div>
 
-                {/* Status Message */}
-                {status.message && (
-                    <div
-                        className={`p-4 rounded-xl flex items-center gap-3 border shadow-sm ${status.type === 'success'
-                            ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
-                            : 'bg-red-50 border-red-100 text-red-800'
-                            } animate-in fade-in slide-in-from-top-2 duration-300`}
-                    >
-                        {StatusIcon && <StatusIcon size={20} />}
-                        <span className="text-sm font-semibold">{status.message}</span>
+            {/* Status Notification */}
+            {status.message && (
+                <div className={`mb-8 p-4 rounded-2xl flex items-center gap-3 border animate-in slide-in-from-top-4 duration-300 ${status.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-red-50 border-red-100 text-red-800'
+                    }`}>
+                    {status.type === 'success' ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                    <span className="font-bold">{status.message}</span>
+                </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl">
+
+                {/* Security Card */}
+                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 flex flex-col h-full">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Shield className="w-5 h-5 text-indigo-600" />
+                        <h3 className="text-lg font-bold text-slate-900">{t('security_auth')}</h3>
                     </div>
-                )}
+                    <p className="text-slate-500 text-sm font-medium mb-6">
+                        {t('security_desc')}
+                    </p>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
-                                <Shield size={20} />
-                            </div>
-                            <h2 className="font-bold text-lg">Account Security</h2>
+                    <form onSubmit={handleChangePassword} className="space-y-4 flex-1">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2 ml-1">{t('current_password')}</label>
+                            <input
+                                required
+                                type="password"
+                                value={oldPassword}
+                                onChange={(e) => setOldPassword(e.target.value)}
+                                className="w-full p-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-xl outline-none transition-all font-bold text-slate-800 text-sm"
+                                placeholder={t('current_password')}
+                            />
                         </div>
-                    </div>
-                    <div className="p-6">
-                        <form onSubmit={handleChangePassword} className="space-y-4">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Current Password</label>
-                                <input
-                                    required
-                                    type="password"
-                                    value={oldPassword}
-                                    onChange={(e) => setOldPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl outline-none transition-all font-medium"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">New Password</label>
-                                    <input
-                                        required
-                                        type="password"
-                                        value={newPassword}
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:bg-white rounded-xl outline-none transition-all font-medium"
-                                        placeholder="Min 8 chars"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Confirm Password</label>
-                                    <input
-                                        required
-                                        type="password"
-                                        value={confirmPassword}
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        className={`w-full px-4 py-2.5 bg-slate-50 border rounded-xl outline-none transition-all font-medium ${confirmPassword.length === 0
-                                            ? 'border-slate-200 focus:border-blue-500'
-                                            : passwordsMatch
-                                                ? 'border-emerald-500 bg-emerald-50/10'
-                                                : 'border-red-500 bg-red-50/10'
-                                            }`}
-                                        placeholder="Repeat new"
-                                    />
-                                </div>
-                            </div>
-
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2 ml-1">{t('new_password')}</label>
+                            <input
+                                required
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full p-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-xl outline-none transition-all font-bold text-slate-800 text-sm"
+                                placeholder={t('new_password')}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2 ml-1">{t('confirm_new_password')}</label>
+                            <input
+                                required
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className={`w-full p-3 bg-slate-50 border-2 outline-none transition-all font-bold text-slate-800 rounded-xl text-sm ${confirmPassword ? (passwordsMatch ? 'border-emerald-500 focus:bg-white' : 'border-red-500 focus:bg-white') : 'border-transparent focus:border-indigo-500 focus:bg-white'
+                                    }`}
+                                placeholder={t('confirm_new_password')}
+                            />
+                        </div>
+                        <div className="pt-2">
                             <button
                                 type="submit"
                                 disabled={changingPassword}
-                                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-100 hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
-                                {changingPassword ? <Loader2 className="animate-spin" size={20} /> : 'Update Password'}
+                                {changingPassword ? <Loader2 className="animate-spin w-4 h-4" /> : t('change_password')}
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-red-100 overflow-hidden">
-                    <div className="p-6 border-b border-red-50 bg-red-50/30">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-100 text-red-600 rounded-lg">
-                                <Trash2 size={20} />
-                            </div>
-                            <h2 className="font-bold text-lg text-red-900">Database Administration</h2>
-                        </div>
+                {/* Maintenance Card */}
+                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-red-50 flex flex-col h-full border-l-8 border-l-red-500">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Database className="w-5 h-5 text-red-500" />
+                        <h3 className="text-lg font-bold text-slate-900">{t('database_maintenance')}</h3>
                     </div>
-                    <div className="p-6 space-y-4">
-                        <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100 text-amber-800">
-                            <AlertTriangle size={20} className="shrink-0 mt-0.5" />
-                            <p className="text-sm font-medium">
-                                Clearing data will remove all student and course records permanently. Administrative accounts will be preserved.
-                            </p>
+                    <p className="text-slate-500 text-sm font-medium mb-6">
+                        {t('maintenance_desc')} <span className="text-red-600 font-bold">{t('warning_irreversible')}</span>
+                    </p>
+
+                    <form onSubmit={handleClearData} className="space-y-4 flex-1 flex flex-col justify-between">
+                        <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-2 ml-1">{t('admin_password_required')}</label>
+                            <input
+                                required
+                                type="password"
+                                value={clearPassword}
+                                onChange={(e) => setClearPassword(e.target.value)}
+                                className="w-full p-3 bg-slate-50 border-2 border-transparent focus:border-red-500 focus:bg-white rounded-xl outline-none transition-all font-bold text-slate-800 text-sm"
+                                placeholder={t('confirm_password')}
+                            />
                         </div>
 
-                        <form onSubmit={handleClearData} className="space-y-4">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold uppercase tracking-wider text-slate-500 ml-1">Admin Verification</label>
-                                <input
-                                    required
-                                    type="password"
-                                    value={clearPassword}
-                                    onChange={(e) => setClearPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 focus:border-red-500 focus:bg-white rounded-xl outline-none transition-all font-medium"
-                                    placeholder="Enter password to confirm wipe"
-                                />
+                        <div className="pt-4">
+                            <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100 text-amber-800 mb-4">
+                                <AlertTriangle size={20} className="shrink-0" />
+                                <p className="text-[10px] font-bold leading-relaxed">
+                                    {t('reset_warning')}
+                                </p>
                             </div>
-
                             <button
                                 type="submit"
                                 disabled={clearingData}
-                                className="w-full py-3 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="w-full py-3 bg-red-500 text-white rounded-xl font-black uppercase tracking-widest text-xs shadow-xl shadow-red-100 hover:bg-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
-                                {clearingData ? <Loader2 className="animate-spin" size={20} /> : 'Clear All Database Records'}
+                                {clearingData ? <Loader2 className="animate-spin w-4 h-4" /> : t('reset_data')}
                             </button>
-                        </form>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Language Selection Card */}
+                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-slate-100 lg:col-span-2">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Globe className="w-5 h-5 text-emerald-500" />
+                        <h3 className="text-lg font-bold text-slate-900">{t('language_localization')}</h3>
+                    </div>
+                    <p className="text-slate-500 text-sm font-medium mb-6">
+                        {t('language_desc')}
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {languages.map((lang) => (
+                            <button
+                                key={lang.code}
+                                onClick={() => changeLanguage(lang.code)}
+                                className={`p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${selectedLanguage === lang.code
+                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-900 ring-2 ring-indigo-50'
+                                    : 'border-slate-50 bg-slate-50 text-slate-600 hover:border-slate-200 hover:bg-white shadow-sm'
+                                    }`}
+                            >
+                                <span className="text-2xl">{lang.flag}</span>
+                                <div className="text-left">
+                                    <p className="font-black text-sm">{lang.name}</p>
+                                    <p className="text-[9px] uppercase tracking-widest font-bold opacity-60">{lang.code}</p>
+                                </div>
+                                {selectedLanguage === lang.code && (
+                                    <div className="ml-auto bg-indigo-600 text-white p-1 rounded-full">
+                                        <CheckCircle2 size={12} />
+                                    </div>
+                                )}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className="text-center text-slate-400 text-xs py-4">
-                    App Version 1.0.0 • Secure Administration Portal
-                </div>
             </div>
-        </div>
+
+            {/* Footer */}
+            <div className="mt-12 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-4">
+                <span>Le Bon Prof v1.2</span>
+                <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <span>Secure Administration Portal</span>
+            </div>
+        </main>
     );
 };
 
