@@ -1,6 +1,7 @@
-import { app, BrowserWindow, utilityProcess } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import path from 'node:path'
 import fs from 'node:fs'
+import { fork } from 'node:child_process'
 
 // The built directory structure
 //
@@ -25,45 +26,51 @@ function startBackend() {
   const logPath = path.join(app.getPath('userData'), 'backend.log');
   const logStream = fs.createWriteStream(logPath, { flags: 'a' });
 
-  // In production, utilityProcess can read directly from app.asar
+  // In production, we use process.resourcesPath as we've placed the Backend in extraResources
   const backendPath = app.isPackaged
-    ? path.join(app.getAppPath(), 'Backend/src/Server.js')
-    : path.join(app.getAppPath(), '../Backend/src/Server.js');
+    ? path.join(process.resourcesPath, 'Backend/src/Server.mjs')
+    : path.join(app.getAppPath(), '../Backend/src/Server.mjs');
 
   logStream.write(`\n[${new Date().toISOString()}] Startup attempt: ${backendPath}\n`);
   logStream.write(`File exists: ${fs.existsSync(backendPath)}\n`);
+  logStream.write(`Resources path: ${process.resourcesPath}\n`);
 
-  backendProcess = utilityProcess.fork(backendPath, [], {
-    env: {
-      ...process.env,
-      PORT: '5000',
-      NODE_ENV: app.isPackaged ? 'production' : 'development',
-      USER_DATA_PATH: app.getPath('userData')
-    },
-    stdio: 'pipe'
-  });
+  try {
+    backendProcess = fork(backendPath, [], {
+      env: {
+        ...process.env,
+        PORT: '5000',
+        NODE_ENV: app.isPackaged ? 'production' : 'development',
+        USER_DATA_PATH: app.getPath('userData')
+      },
+      stdio: 'pipe'
+    });
 
-  backendProcess.stdout?.on('data', (data: any) => {
-    const output = data.toString();
-    logStream.write(`[STDOUT] ${output}`);
-    console.log(`[Backend] ${output}`);
-  });
+    backendProcess.stdout?.on('data', (data: any) => {
+      const output = data.toString();
+      logStream.write(`[STDOUT] ${output}`);
+      console.log(`[Backend] ${output}`);
+    });
 
-  backendProcess.stderr?.on('data', (data: any) => {
-    const output = data.toString();
-    logStream.write(`[STDERR] ${output}`);
-    console.error(`[Backend ERROR] ${output}`);
-  });
+    backendProcess.stderr?.on('data', (data: any) => {
+      const output = data.toString();
+      logStream.write(`[STDERR] ${output}`);
+      console.error(`[Backend ERROR] ${output}`);
+    });
 
-  backendProcess.on('error', (err: any) => {
-    logStream.write(`[ERROR] ${err.message}\n`);
-    console.error(`[Backend Process Error] ${err.message}`);
-  });
+    backendProcess.on('error', (err: any) => {
+      logStream.write(`[ERROR] ${err.message}\n`);
+      console.error(`[Backend Process Error] ${err.message}`);
+    });
 
-  backendProcess.on('exit', (code: number) => {
-    logStream.write(`[EXIT] code ${code}\n`);
-    console.log(`[Backend Exit] code ${code}`);
-  });
+    backendProcess.on('exit', (code: number) => {
+      logStream.write(`[EXIT] code ${code}\n`);
+      console.log(`[Backend Exit] code ${code}`);
+    });
+  } catch (err: any) {
+    logStream.write(`[FORK ERROR] ${err.message}\n`);
+    console.error(`[Backend Fork Error] ${err.message}`);
+  }
 }
 
 function createWindow() {

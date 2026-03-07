@@ -3,11 +3,11 @@
   "version": "1.2.0",
   "description": "",
   "type": "module",
-  "main": "src/Server.js",
+  "main": "src/Server.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/Server.js",
-    "dev": "node --watch src/Server.js"
+    "start": "node src/Server.mjs",
+    "dev": "node --watch src/Server.mjs"
   },
   "keywords": [],
   "author": "",
