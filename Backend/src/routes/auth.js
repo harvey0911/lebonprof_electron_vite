@@ -1,5 +1,5 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { db, dbQuery, dbRun } from '../db.js';
 
 const router = express.Router();

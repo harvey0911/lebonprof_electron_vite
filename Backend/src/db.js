@@ -1,5 +1,5 @@
 import sqlite3 from "sqlite3";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 import path from 'node:path';
 
