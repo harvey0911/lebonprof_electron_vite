@@ -1,9 +1,9 @@
 {
   "name": "lebonprof",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.2.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n \"WEB,API\" -c \"cyan,green\" \"cross-env ELECTRON_SKIP_BACKEND=true vite\" \"npm --prefix ../Backend run dev\"",
     "build": "tsc && vite build && electron-builder",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -45,6 +45,8 @@
     "@typescript-eslint/parser": "^6.6.0",
     "@vitejs/plugin-react": "^4.0.4",
     "autoprefixer": "^10.4.24",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "electron": "^26.1.0",
     "electron-builder": "^24.6.4",
     "eslint": "^8.48.0",

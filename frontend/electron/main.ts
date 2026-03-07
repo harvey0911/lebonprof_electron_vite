@@ -44,19 +44,25 @@ function startBackend() {
   });
 
   backendProcess.stdout?.on('data', (data: any) => {
-    logStream.write(`[STDOUT] ${data}`);
+    const output = data.toString();
+    logStream.write(`[STDOUT] ${output}`);
+    console.log(`[Backend] ${output}`);
   });
 
   backendProcess.stderr?.on('data', (data: any) => {
-    logStream.write(`[STDERR] ${data}`);
+    const output = data.toString();
+    logStream.write(`[STDERR] ${output}`);
+    console.error(`[Backend ERROR] ${output}`);
   });
 
   backendProcess.on('error', (err: any) => {
     logStream.write(`[ERROR] ${err.message}\n`);
+    console.error(`[Backend Process Error] ${err.message}`);
   });
 
   backendProcess.on('exit', (code: number) => {
     logStream.write(`[EXIT] code ${code}\n`);
+    console.log(`[Backend Exit] code ${code}`);
   });
 }
 
@@ -110,6 +116,11 @@ app.whenReady().then(() => {
 
   // Start backend after a short delay to ensure window is up
   setTimeout(() => {
+    if (process.env.ELECTRON_SKIP_BACKEND) {
+      console.log('[Main] Skipping internal backend startup (ELECTRON_SKIP_BACKEND is set)');
+      return;
+    }
+
     try {
       startBackend()
     } catch (e) {
